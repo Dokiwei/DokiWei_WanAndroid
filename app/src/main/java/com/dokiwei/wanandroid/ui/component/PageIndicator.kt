@@ -14,6 +14,15 @@ import androidx.compose.ui.unit.dp
 /**
  * @author DokiWei
  * @date 2023/7/11 19:27
+ *
+ * 轮播图指示器
+ *
+ * @param pagerState:轮播图状态
+ * @param pageCount:轮播图数量
+ * @param modifier:不用解释
+ * @param indicatorColor:指示器颜色
+ * @param indicatorSize:指示器大小
+ * @param spacing:指示器之间的间距
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

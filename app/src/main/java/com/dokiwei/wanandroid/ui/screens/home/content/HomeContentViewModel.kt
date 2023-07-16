@@ -2,6 +2,8 @@ package com.dokiwei.wanandroid.ui.screens.home.content
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dokiwei.wanandroid.data.ArticleListData
@@ -25,10 +27,8 @@ class HomeContentViewModel : ViewModel() {
 
     //初始化应用数据
     init {
-        viewModelScope.launch {
-            getBanner()
-            getArticleList()
-        }
+        getBanner()
+        getArticleList()
     }
 
     //轮播图
@@ -36,26 +36,57 @@ class HomeContentViewModel : ViewModel() {
     val bannerList = _bannerList
 
     //文章列表
-    private val _articleList = MutableStateFlow<List<ArticleListData>>(emptyList())
+    private val _articleList = MutableStateFlow(SnapshotStateList<ArticleListData>())
     val articleList = _articleList
 
+    //当前页
+    private val _nowPageIndex = MutableStateFlow(0)
+    private val _isRefreshing = mutableStateOf(false)
+    val isRefreshing = _isRefreshing
+
+    //刷新数据
+    fun onRefresh() {
+        _isRefreshing.value = true
+        getArticleList()
+        _isRefreshing.value = false
+    }
+
+    fun loadMore(): Boolean {
+        if (_nowPageIndex.value < 40) {
+            _nowPageIndex.value += 1
+            getArticleList(_nowPageIndex.value)
+            return true
+        }
+        return false
+    }
+
+
     //获取轮播图
-    private suspend fun getBanner() {
-        val bannerResult = bannerRepo.banner()
-        if (bannerResult.isSuccess) {
-            _bannerList.value = bannerResult.getOrNull() ?: emptyList()
-        } else {
-            Log.e("获取banner失败", bannerResult.exceptionOrNull().toString())
+    private fun getBanner() {
+        viewModelScope.launch {
+            val bannerResult = bannerRepo.banner()
+            if (bannerResult.isSuccess) {
+                _bannerList.value = bannerResult.getOrNull() ?: emptyList()
+            } else {
+                Log.e("获取banner失败", bannerResult.exceptionOrNull().toString())
+            }
         }
     }
 
     //获取首页文章
-    private suspend fun getArticleList() {
-        val articleResult = articleListRepo.getArticleList(0)
-        if (articleResult.isSuccess) {
-            _articleList.value = articleResult.getOrNull() ?: emptyList()
-        } else {
-            Log.e("获取首页文章失败", articleResult.exceptionOrNull().toString())
+    private fun getArticleList(page: Int = 0) {
+        viewModelScope.launch {
+            val articleResult = articleListRepo.getArticleList(page)
+            if (articleResult.isSuccess) {
+                if (page == 0) _articleList.value.clear()
+                articleResult.getOrNull()?.let {list->
+                    list.forEach{
+                        _articleList.value.add(it)
+                    }
+                }
+            } else {
+                Log.e("获取首页文章失败", articleResult.exceptionOrNull().toString())
+            }
         }
     }
 

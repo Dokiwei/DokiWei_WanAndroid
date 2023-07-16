@@ -27,7 +27,13 @@ import androidx.compose.ui.unit.sp
 /**
  * @author DokiWei
  * @date 2023/7/15 16:29
- */
+ *
+ * 自定义滚动标题栏
+ *
+ * @param titleList:标题数据
+ * @param selectedTabIndex:当前选择项
+ * @param onClick:标题项点击事件
+*/
 @Composable
 fun MyScrollableTabRow(
     titleList: List<String>,

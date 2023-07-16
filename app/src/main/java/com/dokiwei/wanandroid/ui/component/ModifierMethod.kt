@@ -13,6 +13,9 @@ import androidx.compose.ui.unit.dp
 /**
  * @author DokiWei
  * @date 2023/7/8 16:46
+ *
+ * modifier的自定义扩展方法
+ *
  */
 fun Modifier.mainBody() =
     composed {

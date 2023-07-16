@@ -16,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -26,14 +25,21 @@ import kotlinx.coroutines.delay
 /**
  * @author DokiWei
  * @date 2023/7/15 15:41
+ *
+ * 收藏按钮
+ *
+ * @param modifier:Modifier
+ * @param size:图标大小
+ * @param liked:是否已收藏
+ * @param onclick:点击事件
  */
 @Composable
 fun LikeIcon(
-    modifier:Modifier=Modifier,
-    size:Dp,
-    liked:Boolean,
-    onclick:()->Unit
-){
+    modifier: Modifier = Modifier,
+    size: Dp,
+    liked: Boolean,
+    onclick: () -> Unit
+) {
     var scale by remember {
         mutableFloatStateOf(1f)
     }
@@ -49,12 +55,14 @@ fun LikeIcon(
     IconButton(
         modifier = modifier,
         onClick = {
-            scale+=0.2f
+            scale += 0.2f
             onclick()
         }
     ) {
         Icon(
-            modifier = Modifier.size(size).scale(scaleAnim),
+            modifier = Modifier
+                .size(size)
+                .scale(scaleAnim),
             imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
             contentDescription = null,
             tint = if (liked) Color.Red else MaterialTheme.colorScheme.onSurface

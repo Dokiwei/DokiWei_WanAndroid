@@ -2,6 +2,8 @@ package com.dokiwei.wanandroid.ui.screens.home.content
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dokiwei.wanandroid.data.ArticleListData
@@ -15,29 +17,59 @@ import kotlinx.coroutines.launch
  * @author DokiWei
  * @date 2023/7/14 22:50
  */
-class SquareContentViewModel:ViewModel() {
+class SquareContentViewModel : ViewModel() {
     private val userArticleRepo = UserArticleRepo()
     private val collectArticleRepo = CollectArticleRepo()
 
-    //初始化应用数据
+    //初始化
     init {
-        viewModelScope.launch {
-            getUserArticleList()
-        }
+        getUserArticleList()
     }
 
     //文章列表
-    private val _userArticleList = MutableStateFlow<List<ArticleListData>>(emptyList())
+    private val _userArticleList = MutableStateFlow(SnapshotStateList<ArticleListData>())
     val userArticleList = _userArticleList
 
-    //获取广场文章
-    private suspend fun getUserArticleList(){
-        val articleResult = userArticleRepo.getArticleList(0)
-        if (articleResult.isSuccess) {
-            _userArticleList.value = articleResult.getOrNull() ?: emptyList()
-        } else {
-            Log.e("获取广场文章失败", articleResult.exceptionOrNull().toString())
+    //刷新状态
+    private val _isRefreshing = mutableStateOf(false)
+    val isRefreshing = _isRefreshing
+
+    //当前页面
+    private val _nowPageIndex = MutableStateFlow(0)
+
+    //刷新列表
+    fun onRefresh() {
+        _isRefreshing.value = true
+        getUserArticleList()
+        _isRefreshing.value = false
+    }
+
+    //加载更多问答
+    fun loadMore(): Boolean {
+        if (_nowPageIndex.value < 40) {
+            _nowPageIndex.value += 1
+            getUserArticleList(_nowPageIndex.value)
+            return true
         }
+        return false
+    }
+
+    //获取广场文章
+    private fun getUserArticleList(page: Int = 0) {
+        viewModelScope.launch {
+            val articleResult = userArticleRepo.getArticleList(page)
+            if (articleResult.isSuccess) {
+                if (page == 0) _userArticleList.value.clear()
+                articleResult.getOrNull()?.let {list->
+                    list.forEach{
+                        _userArticleList.value.add(it)
+                    }
+                }
+            } else {
+                Log.e("获取广场文章失败", articleResult.exceptionOrNull().toString())
+            }
+        }
+
     }
 
     //收藏

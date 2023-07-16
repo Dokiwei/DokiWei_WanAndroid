@@ -12,12 +12,15 @@ import androidx.compose.ui.unit.dp
 /**
  * @author DokiWei
  * @date 2023/7/15 20:07
+ *
+ * 文章列表卡片ui
+ *
  */
 @Composable
 fun CardContent(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    content: @Composable() (ColumnScope.() -> Unit)
+    content: @Composable (ColumnScope.() -> Unit)
 ) {
     Card(
         modifier = modifier

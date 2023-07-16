@@ -6,7 +6,7 @@ junit = "4.13.2"
 androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
 lifecycle-runtime-ktx = "2.6.1"
-activity-compose = "1.7.1"
+activity-compose = "1.7.2"
 compose-bom = "2023.05.01"
 accompanist-navigation-animation = "0.31.5-beta"
 ok-http3 = "5.0.0-alpha.11"
@@ -14,11 +14,12 @@ retrofit2 = "2.9.0"
 coil = "2.4.0"
 kotlinx-serialization-json = "1.5.1"
 persistentCookieJar = "1.0.1"
-accompanist-webview="0.31.5-beta"
-
+accompanist-webview = "0.31.5-beta"
+accompanist-swiperefresh = "0.31.5-beta"
 
 [libraries]
-accompanist-webview={group="com.google.accompanist",name="accompanist-webview",version.ref="accompanist-webview"}
+accompanist-webview = { group = "com.google.accompanist", name = "accompanist-webview", version.ref = "accompanist-webview" }
+accompanist-swiperefresh = { group = "com.google.accompanist", name = "accompanist-swiperefresh", version.ref = "accompanist-swiperefresh" }
 persistentCookieJar = { group = "com.github.franmontiel", name = "PersistentCookieJar", version.ref = "persistentCookieJar" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }

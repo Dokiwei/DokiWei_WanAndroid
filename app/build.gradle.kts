@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
-
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     alias(libs.plugins.androidApplication)
@@ -55,8 +53,10 @@ android {
 dependencies {
     //json序列化
     implementation(libs.kotlinx.serialization.json)
-    //accompanist-webView
+    //webView
     implementation(libs.accompanist.webview)
+    //下拉刷新
+    implementation(libs.accompanist.swiperefresh)
     //cookie持久化
     implementation(libs.persistentCookieJar)
     //coil加载图片
