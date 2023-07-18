@@ -1,6 +1,7 @@
 package com.dokiwei.wanandroid.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,11 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -31,6 +37,7 @@ fun ProjectListView(
     modifier: Modifier,
     projectList: List<ProjectData>,
     onProjectClick: (ProjectData) -> Unit,
+    onLikeClick: (ProjectData, Boolean) -> Boolean,
     lazyListState: LazyListState,
 ) {
     LazyColumn(
@@ -39,6 +46,7 @@ fun ProjectListView(
     ) {
         items(projectList.size) {
             val project = projectList[it]
+            var like by remember { mutableStateOf(project.collect) }
             CardContent(onClick = {
                 onProjectClick(project)
             }) {
@@ -57,30 +65,39 @@ fun ProjectListView(
                             ),
                         contentScale = ContentScale.Crop
                     )
-                    Column(
-                        Modifier
-                            .height(148.dp)
-                            .padding(horizontal = 5.dp),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-
-                        Text(
-                            text = project.title,
-                            fontSize = 16.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            text = project.desc,
-                            fontSize = 14.sp,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = project.niceDate + "  " + project.author,
-                            fontSize = 12.sp,
-                        )
+                    Box (modifier=Modifier.fillMaxWidth()){
+                        Column(
+                            Modifier
+                                .height(148.dp)
+                                .padding(horizontal = 5.dp),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = project.title,
+                                fontSize = 16.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text(
+                                text = project.desc,
+                                fontSize = 14.sp,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Text(
+                                text = project.niceDate + "  " + project.author,
+                                fontSize = 12.sp,
+                            )
+                        }
+                        LikeIcon(
+                            modifier = Modifier.align(Alignment.BottomEnd),
+                            size = 30.dp,
+                            liked = like
+                        ) {
+                            onLikeClick(project, like)
+                            like = !like
+                        }
                     }
                 }
             }

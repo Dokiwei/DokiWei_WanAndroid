@@ -1,5 +1,6 @@
 package com.dokiwei.wanandroid.ui.screens.project
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -8,7 +9,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dokiwei.wanandroid.data.ProjectData
 import com.dokiwei.wanandroid.data.ProjectTitleData
+import com.dokiwei.wanandroid.network.repository.CollectArticleRepo
 import com.dokiwei.wanandroid.network.repository.ProjectRepo
+import com.dokiwei.wanandroid.util.ToastUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -18,9 +21,10 @@ import kotlinx.coroutines.launch
  */
 class ProjectViewModel : ViewModel() {
     private val projectRepo = ProjectRepo()
+    private val collectArticleRepo = CollectArticleRepo()
 
     //项目标题数据
-    private val _projectTitleList = MutableStateFlow<List<ProjectTitleData>>(emptyList())
+    private val _projectTitleList = MutableStateFlow(SnapshotStateList<ProjectTitleData>())
     val projectTitleList = _projectTitleList
 
     //项目数据
@@ -52,7 +56,7 @@ class ProjectViewModel : ViewModel() {
 
     //初始化
     init {
-        viewModelScope.launch{
+        viewModelScope.launch {
             getProjectTitleList()
             if (_projectTitleList.value.isNotEmpty()) {
                 getProjectList(id = _projectTitleList.value[_selectedTabIndex.intValue].id)
@@ -81,9 +85,16 @@ class ProjectViewModel : ViewModel() {
 
     //获取项目tab
     private suspend fun getProjectTitleList() {
-            val result = projectRepo.getProjectTitle()
-            if (result.isSuccess) _projectTitleList.value = result.getOrNull() ?: emptyList()
-            else Log.e("获取项目标题失败", result.exceptionOrNull().toString())
+        val result = projectRepo.getProjectTitle()
+        if (result.isSuccess) result.getOrNull()?.let { list ->
+            list.forEach {
+                _projectTitleList.value.add(it)
+            }
+            val lastId = _projectTitleList.value.removeLast().id
+            val lastElement = ProjectTitleData(lastId,"最新项目")
+            _projectTitleList.value.add(0, lastElement)
+        }
+        else Log.e("获取项目标题失败", result.exceptionOrNull().toString())
     }
 
     //获取项目内容
@@ -98,6 +109,36 @@ class ProjectViewModel : ViewModel() {
                     }
                 }
             } else Log.e("获取项目失败", result.exceptionOrNull().toString())
+        }
+    }
+
+    //收藏
+    fun likeArticle(id: Int, context: Context, callBack: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val result = collectArticleRepo.likeArticle(id)
+            if (result.isFailure) {
+                ToastUtil.showMsg(context, "收藏失败")
+                callBack(false)
+                Log.e("收藏操作异常", result.exceptionOrNull().toString())
+            } else {
+                ToastUtil.showMsg(context, "收藏成功")
+                callBack(true)
+            }
+        }
+    }
+
+    //取消收藏
+    fun unlikeArticle(id: Int, context: Context, callBack: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val result = collectArticleRepo.unLikeArticle(id)
+            if (result.isFailure) {
+                ToastUtil.showMsg(context, "取消收藏失败")
+                callBack(true)
+                Log.e("取消收藏操作异常", result.exceptionOrNull().toString())
+            } else {
+                ToastUtil.showMsg(context, "取消收藏成功")
+                callBack(false)
+            }
         }
     }
 

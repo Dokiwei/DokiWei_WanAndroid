@@ -50,10 +50,11 @@ fun HomeContent(
             ArticleListView(
                 articles = articleList,
                 onArticleClick = { data ->
-                    val link = URLEncoder.encode(
-                        data.link,
-                        "UTF-8"
-                    )
+                    val link = URLEncoder.encode(data.link, "UTF-8")
+                    navController.navigate("网页/$link")
+                },
+                onTagClick = {
+                    val link = URLEncoder.encode(it, "UTF-8")
                     navController.navigate("网页/$link")
                 },
                 onLikeClick = { data, like ->

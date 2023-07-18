@@ -79,6 +79,7 @@ fun ProjectScreen(navController: NavHostController) {
         }
         titleList = list
     }
+
     Scaffold(
         topBar = {
             if (!isTabExpand) {
@@ -185,6 +186,25 @@ fun ProjectScreen(navController: NavHostController) {
                     onProjectClick = {
                         val link = URLEncoder.encode(it.link, "UTF-8")
                         navController.navigate("网页/$link")
+                    },
+                    onLikeClick = { data, like ->
+                        var callBack = false
+                        if (like) {
+                            vm.unlikeArticle(
+                                data.id,
+                                context
+                            ) { success ->
+                                callBack = success
+                            }
+                        } else {
+                            vm.likeArticle(
+                                data.id,
+                                context
+                            ) { success ->
+                                callBack = success
+                            }
+                        }
+                        callBack
                     },
                     lazyListState = it
                 )

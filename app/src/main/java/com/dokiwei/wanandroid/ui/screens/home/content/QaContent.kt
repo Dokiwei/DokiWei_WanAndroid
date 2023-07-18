@@ -24,7 +24,7 @@ fun QAContent(
     navController: NavController,
     scrollToTop: Boolean
 ) {
-    val vm: QAContentViewModel = viewModel()
+    val vm: QaContentViewModel = viewModel()
     val context = LocalContext.current
     val qaList by vm.qaList.collectAsState()
     val isRefreshing = vm.isRefreshing
@@ -45,13 +45,34 @@ fun QAContent(
         ) {
             ArticleListView(
                 lazyListState = it,
-                visibleLike = false,
                 articles = qaList,
                 onArticleClick = {
                     val link = URLEncoder.encode(it.link, "UTF-8")
                     navController.navigate("网页/$link")
                 },
-                onLikeClick = { _, _ -> false },
+                onTagClick = {
+                    val link = URLEncoder.encode(it, "UTF-8")
+                    navController.navigate("网页/$link")
+                },
+                onLikeClick = { data, like ->
+                    var callBack = false
+                    if (like) {
+                        vm.unlikeArticle(
+                            data.id,
+                            context
+                        ) { success ->
+                            callBack = success
+                        }
+                    } else {
+                        vm.likeArticle(
+                            data.id,
+                            context
+                        ) { success ->
+                            callBack = success
+                        }
+                    }
+                    callBack
+                },
                 banner = {}
             )
         }

@@ -86,7 +86,8 @@ fun HomeScreen(navController: NavHostController) {
         },
         floatingActionButton = {
             SmallFloatingActionButton(
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 shape = FloatingActionButtonDefaults.largeShape,
                 onClick = {
                     scrollToTop = !scrollToTop

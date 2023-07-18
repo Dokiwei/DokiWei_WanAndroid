@@ -17,5 +17,11 @@ data class ArticleListData(
     val collect:Boolean,
     val id:Int,
     val link:String,
-    val fresh:Boolean
+    val fresh:Boolean,
+    val tags: List<TagData>
+)
+@Serializable
+data class TagData(
+    val name:String,
+    val url:String
 )

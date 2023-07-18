@@ -52,6 +52,10 @@ fun SquareContent(
                     val link = URLEncoder.encode(it.link, "UTF-8")
                     navController.navigate("网页/$link")
                 },
+                onTagClick = {
+                    val link = URLEncoder.encode(it, "UTF-8")
+                    navController.navigate("网页/$link")
+                },
                 onLikeClick = { data, like ->
                     var callBack = false
                     if (like) {

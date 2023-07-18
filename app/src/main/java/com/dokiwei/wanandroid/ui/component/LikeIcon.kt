@@ -19,7 +19,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.Dp
+import com.dokiwei.wanandroid.R
 import kotlinx.coroutines.delay
 
 /**
@@ -65,7 +67,7 @@ fun LikeIcon(
                 .scale(scaleAnim),
             imageVector = if (liked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
             contentDescription = null,
-            tint = if (liked) Color.Red else MaterialTheme.colorScheme.onSurface
+            tint = if (liked) colorResource(id = R.color.like) else MaterialTheme.colorScheme.onSurface
         )
     }
 }
