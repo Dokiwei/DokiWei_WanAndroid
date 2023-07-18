@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ListItem
@@ -82,7 +83,7 @@ fun ArticleListView(
                     },
                     trailingContent = {
                         if (visibleLike){
-                            Box(modifier = Modifier.size(40.dp, 80.dp)) {
+                            Box(modifier = Modifier.width(40.dp)) {
                                 Text(
                                     modifier = Modifier.align(Alignment.TopCenter),
                                     text =
