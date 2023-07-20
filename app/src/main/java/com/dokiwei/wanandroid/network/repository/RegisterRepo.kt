@@ -11,13 +11,20 @@ class RegisterRepo {
     suspend fun register(
         username: String,
         password: String,
-        rePassword: String,
-        callback: (Boolean) -> Unit
-    ) {
-        callback(
-            JSONObject(
-                RetrofitClient.registerApi.register(username, password, rePassword).string()
-            ).getInt("errorCode") == 0
-        )
+        rePassword: String
+    ): Result<Boolean> {
+        return try {
+            val response = RetrofitClient.registerApi.register(username, password, rePassword)
+            val responseBody = response.string()
+            val jsonObject = JSONObject(responseBody)
+            val errorCode = jsonObject.getInt("errorCode")
+            if (errorCode == 0) {
+                Result.success(true)
+            } else {
+                Result.failure(Exception("Error code: $errorCode"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

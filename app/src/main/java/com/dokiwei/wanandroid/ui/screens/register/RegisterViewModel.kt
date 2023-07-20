@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.dokiwei.wanandroid.network.repository.LoginRepo
 import com.dokiwei.wanandroid.network.repository.RegisterRepo
 import com.dokiwei.wanandroid.util.LoginStateHelper
+import com.dokiwei.wanandroid.util.ToastUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -57,16 +58,21 @@ class RegisterViewModel : ViewModel() {
         }
         if (message != null) {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            _registerState.value = _registerState.value.copy(isLoading = false)
         } else {
             viewModelScope.launch {
-                registerRepository.register(name, psd, rePsd) {
+                val result = registerRepository.register(name, psd, rePsd)
+                if (result.isSuccess) {
+                    ToastUtil.showMsg(context, "注册成功")
+                    val loginResult = loginRepository.login(name, psd)
                     _registerState.value = _registerState.value.copy(isLoading = false)
-                    if (it) viewModelScope.launch {
-                        loginRepository.login(name, psd) { loginSuccess ->
-                            _registerState.value =
-                                _registerState.value.copy(isSuccess = loginSuccess)
-                        }
+                    if (loginResult.isSuccess) {
+                        _registerState.value = _registerState.value.copy(isSuccess = true)
+                    } else {
+                        ToastUtil.showMsg(context, "登录失败:${loginResult.exceptionOrNull()}")
                     }
+                } else {
+                    ToastUtil.showMsg(context, "注册失败:${result.exceptionOrNull()}")
                 }
             }
         }

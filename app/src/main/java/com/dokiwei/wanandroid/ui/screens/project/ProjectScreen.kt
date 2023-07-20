@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.dokiwei.wanandroid.ui.component.Loading
 import com.dokiwei.wanandroid.ui.component.MyScrollableTabRow
 import com.dokiwei.wanandroid.ui.component.MySwipeRefresh
 import com.dokiwei.wanandroid.ui.component.ProjectListView
@@ -164,6 +165,7 @@ fun ProjectScreen(navController: NavHostController) {
                 }
             }
         }
+        if(projectList.isEmpty()) Loading(onClick = { vm.onRefresh() })
         MySwipeRefresh(
             scrollToTop = scrollToTop,
             isRefreshing = isRefreshing,

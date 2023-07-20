@@ -1,6 +1,7 @@
 package com.dokiwei.wanandroid.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,7 +27,8 @@ import kotlinx.coroutines.delay
  */
 @Composable
 fun Loading(
-    timeOut: Long = 5000
+    timeOut: Long = 5000,
+    onClick: () -> Unit
 ) {
     var isTimeOut by remember { mutableStateOf(false) }
     Box(
@@ -41,7 +43,9 @@ fun Loading(
         if (!isTimeOut) {
             CircularProgressIndicator(Modifier.align(Alignment.Center))
         } else {
-            Text(text = "请求超时,请检查网络后下拉刷新",Modifier.align(Alignment.Center))
+            Box(Modifier.fillMaxSize().clickable { onClick() }) {
+                Text(text = "请求超时,请检查网络后点击刷新", Modifier.align(Alignment.Center))
+            }
         }
     }
 }

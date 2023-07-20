@@ -18,7 +18,7 @@ class ProjectRepo {
     private val json = Json { ignoreUnknownKeys = true }
     suspend fun getProjectTitle():Result<List<ProjectTitleData>>{
         return try {
-            val response = RetrofitClient.projectTitleApi.getProjectTitle()
+            val response = RetrofitClient.projectApi.getProjectTitle()
             val responseBody =response.string()
             val jsonElement = json.parseToJsonElement(responseBody).jsonObject
             val errorCode = jsonElement["errorCode"]?.jsonPrimitive?.int?:-1

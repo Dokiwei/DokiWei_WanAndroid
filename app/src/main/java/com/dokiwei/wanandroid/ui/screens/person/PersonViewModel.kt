@@ -23,10 +23,12 @@ class PersonViewModel : ViewModel() {
     private val _userInfoList = MutableStateFlow<UserInfoData?>(null)
     val userInfoList = _userInfoList
 
+    //初始化
     init {
         getUserInfo()
     }
 
+    //获取用户信息
     private fun getUserInfo() {
         viewModelScope.launch {
             val result = userInfoRepo.getUserInfo()
@@ -41,12 +43,12 @@ class PersonViewModel : ViewModel() {
     //登出
     fun logout(context: Context) {
         viewModelScope.launch {
-            logoutRepository.logout {
-                if (it) {
-                    ToastUtil.showMsg(context, "退出登录成功")
-                    LoginStateHelper.saveLogoutState(context)
-                } else
-                    ToastUtil.showMsg(context, "退出登录失败")
+            val result = logoutRepository.logout()
+            if (result.isSuccess) {
+                ToastUtil.showMsg(context, "退出登录成功")
+                LoginStateHelper.saveLogoutState(context)
+            } else {
+                ToastUtil.showMsg(context, "退出登录失败:${result.exceptionOrNull()}")
             }
         }
     }

@@ -31,8 +31,7 @@ fun HomeContent(
     val articleList by vm.articleList.collectAsState()
     val isRefreshing = vm.isRefreshing
 
-    if (bannerData.isEmpty() && articleList.isEmpty()) Loading()
-
+    if (bannerData.isEmpty() && articleList.isEmpty()) Loading(onClick = { vm.onRefresh() })
     MySwipeRefresh(
         scrollToTop = scrollToTop,
         isRefreshing = isRefreshing,

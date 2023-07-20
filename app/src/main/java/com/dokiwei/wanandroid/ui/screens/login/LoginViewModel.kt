@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.dokiwei.wanandroid.data.LoginState
 import com.dokiwei.wanandroid.network.repository.LoginRepo
 import com.dokiwei.wanandroid.util.LoginStateHelper
+import com.dokiwei.wanandroid.util.ToastUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -64,11 +65,16 @@ class LoginViewModel : ViewModel() {
         }
         if (message != null) {
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            _loginState.value = _loginState.value.copy(isLoading = false)
         } else {
             viewModelScope.launch {
-                loginRepository.login(username, password) {
-                    _loginState.value = _loginState.value.copy(isLoading = false)
-                    _loginState.value = _loginState.value.copy(isLoggedIn = it)
+                val result = loginRepository.login(username, password)
+                _loginState.value = _loginState.value.copy(isLoading = false)
+                if (result.isSuccess){
+                    _loginState.value =_loginState.value.copy(isLoggedIn = true)
+                }else{
+                    loginState.value = _loginState.value.copy(isLoggedIn = false)
+                    ToastUtil.showMsg(context,"登录失败:${result.exceptionOrNull()}")
                 }
             }
         }

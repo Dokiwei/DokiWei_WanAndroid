@@ -28,7 +28,7 @@ fun QAContent(
     val context = LocalContext.current
     val qaList by vm.qaList.collectAsState()
     val isRefreshing = vm.isRefreshing
-    if (qaList.isEmpty()) Loading()
+    if (qaList.isEmpty()) Loading(onClick = { vm.onRefresh() })
     MySwipeRefresh(
         scrollToTop = scrollToTop,
         isRefreshing = isRefreshing,

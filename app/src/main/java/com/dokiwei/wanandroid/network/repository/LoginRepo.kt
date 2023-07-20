@@ -8,11 +8,19 @@ import org.json.JSONObject
  * @date 2023/7/9 19:08
  */
 class LoginRepo {
-    suspend fun login(username: String, password: String, callback: (Boolean) -> Unit) {
-        callback(
-            JSONObject(
-                RetrofitClient.loginApi.login(username, password).string()
-            ).getInt("errorCode") == 0
-        )
+    suspend fun login(username: String, password: String): Result<Boolean> {
+        return try {
+            val response = RetrofitClient.loginApi.login(username, password)
+            val responseBody = response.string()
+            val jsonObject = JSONObject(responseBody)
+            val errorCode = jsonObject.getInt("errorCode")
+            if (errorCode == 0) {
+                Result.success(true)
+            } else {
+                Result.failure(Exception("Error code: $errorCode"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

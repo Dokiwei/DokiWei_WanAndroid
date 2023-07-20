@@ -8,9 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dokiwei.wanandroid.data.ArticleListData
 import com.dokiwei.wanandroid.data.BannerData
-import com.dokiwei.wanandroid.network.repository.ArticleListRepo
+import com.dokiwei.wanandroid.network.repository.ArticleRepo
 import com.dokiwei.wanandroid.network.repository.BannerRepo
-import com.dokiwei.wanandroid.network.repository.CollectArticleRepo
+import com.dokiwei.wanandroid.network.repository.CollectRepo
 import com.dokiwei.wanandroid.util.ToastUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -22,8 +22,8 @@ import kotlinx.coroutines.launch
 class HomeContentViewModel : ViewModel() {
 
     private val bannerRepo = BannerRepo()
-    private val articleListRepo = ArticleListRepo()
-    private val collectArticleRepo = CollectArticleRepo()
+    private val articleRepo = ArticleRepo()
+    private val collectRepo = CollectRepo()
 
     //初始化应用数据
     init {
@@ -47,6 +47,7 @@ class HomeContentViewModel : ViewModel() {
     //刷新数据
     fun onRefresh() {
         _isRefreshing.value = true
+        getBanner()
         getArticleList()
         _isRefreshing.value = false
     }
@@ -76,11 +77,11 @@ class HomeContentViewModel : ViewModel() {
     //获取首页文章
     private fun getArticleList(page: Int = 0) {
         viewModelScope.launch {
-            val articleResult = articleListRepo.getArticleList(page)
+            val articleResult = articleRepo.getArticleList(page)
             if (articleResult.isSuccess) {
                 if (page == 0) _articleList.value.clear()
-                articleResult.getOrNull()?.let {list->
-                    list.forEach{
+                articleResult.getOrNull()?.let { list ->
+                    list.forEach {
                         _articleList.value.add(it)
                     }
                 }
@@ -93,7 +94,7 @@ class HomeContentViewModel : ViewModel() {
     //收藏
     fun likeArticle(id: Int, context: Context, callBack: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val result = collectArticleRepo.likeArticle(id)
+            val result = collectRepo.like(id)
             if (result.isFailure) {
                 ToastUtil.showMsg(context, "收藏失败")
                 callBack(false)
@@ -108,7 +109,7 @@ class HomeContentViewModel : ViewModel() {
     //取消收藏
     fun unlikeArticle(id: Int, context: Context, callBack: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val result = collectArticleRepo.unLikeArticle(id)
+            val result = collectRepo.unlike(id)
             if (result.isFailure) {
                 ToastUtil.showMsg(context, "取消收藏失败")
                 callBack(true)

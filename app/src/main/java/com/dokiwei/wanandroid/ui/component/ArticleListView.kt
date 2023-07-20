@@ -1,5 +1,6 @@
 package com.dokiwei.wanandroid.ui.component
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -16,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +40,7 @@ import com.dokiwei.wanandroid.util.TimeDiffString
  * @param lazyListState:懒加载列表状态
  * @param banner:轮播图(不使用传入空方法体)
  */
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun ArticleListView(
     articles: List<ArticleListData>,
@@ -53,7 +54,7 @@ fun ArticleListView(
         item { banner() }
         items(articles.size) { index ->
             val article = articles[index]
-            var like by remember { mutableStateOf(article.collect) }
+            var like by mutableStateOf(article.collect)
             CardContent(
                 onClick = { onArticleClick(article) }
             ) {

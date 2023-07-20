@@ -8,11 +8,19 @@ import org.json.JSONObject
  * @date 2023/7/9 23:46
  */
 class LogoutRepo {
-    suspend fun logout(callback: (Boolean) -> Unit) {
-        val response = RetrofitClient.logoutApi.logout()
-        val responseBody = response.string()
-        val json = JSONObject(responseBody)
-        val errorCode = json.getInt("errorCode")
-        callback(errorCode == 0)
+    suspend fun logout(): Result<Boolean> {
+        return try {
+            val response = RetrofitClient.logoutApi.logout()
+            val responseBody = response.string()
+            val jsonObject = JSONObject(responseBody)
+            val errorCode = jsonObject.getInt("errorCode")
+            if (errorCode == 0) {
+                Result.success(true)
+            } else {
+                Result.failure(Exception("Error code: $errorCode"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

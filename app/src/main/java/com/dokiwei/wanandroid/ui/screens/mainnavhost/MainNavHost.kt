@@ -40,6 +40,7 @@ import com.dokiwei.wanandroid.ui.animation.ScreenAnim
 import com.dokiwei.wanandroid.ui.screens.home.HomeScreen
 import com.dokiwei.wanandroid.ui.screens.login.LoginScreen
 import com.dokiwei.wanandroid.ui.screens.person.PersonScreen
+import com.dokiwei.wanandroid.ui.screens.person.mylike.MyLike
 import com.dokiwei.wanandroid.ui.screens.project.ProjectScreen
 import com.dokiwei.wanandroid.ui.screens.register.RegisterScreen
 import com.dokiwei.wanandroid.ui.screens.startscreen.StartScreen
@@ -176,7 +177,7 @@ fun MainNavHost() {
                 popEnterTransition = ScreenAnim.popEnterScreenAnim(),
                 popExitTransition = ScreenAnim.popExitScreenAnim()
             ) {
-                PersonScreen()
+                PersonScreen(navController)
             }
             composable(
                 route = "项目",
@@ -198,6 +199,15 @@ fun MainNavHost() {
                 navBackStackEntry.arguments?.getString("link")?.let { string ->
                     WebViewScreen(link = string)
                 }
+            }
+            composable(
+                route = "我的收藏",
+                enterTransition = ScreenAnim.enterScreenAnim(),
+                exitTransition = ScreenAnim.exitScreenAnim(),
+                popEnterTransition = ScreenAnim.popEnterScreenAnim(),
+                popExitTransition = ScreenAnim.popExitScreenAnim()
+            ) {
+                MyLike(navController)
             }
         }
     }

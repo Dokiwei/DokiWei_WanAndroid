@@ -141,7 +141,7 @@ fun RegisterScreen(navController: NavHostController) {
             Text(text = "注册", style = MaterialTheme.typography.titleLarge)
         }
     }
-    if (registerState.isLoading) Loading()
+    if (registerState.isLoading) Loading(onClick = {})
 }
 
 @Preview(showBackground = true)

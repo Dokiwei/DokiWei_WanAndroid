@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.flow.collectLatest
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun MySwipeRefresh(
+    modifier: Modifier = Modifier,
     scrollToTop: Boolean = false,
     isRefreshing: State<Boolean>,
     onRefresh: () -> Unit,
@@ -47,6 +49,7 @@ fun MySwipeRefresh(
             }
     }
     SwipeRefresh(
+        modifier = modifier,
         state = rememberSwipeRefreshState(isRefreshing.value),
         onRefresh = onRefresh
     ) {

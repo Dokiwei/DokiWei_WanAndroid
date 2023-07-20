@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dokiwei.wanandroid.data.ProjectData
 import com.dokiwei.wanandroid.data.ProjectTitleData
-import com.dokiwei.wanandroid.network.repository.CollectArticleRepo
+import com.dokiwei.wanandroid.network.repository.CollectRepo
 import com.dokiwei.wanandroid.network.repository.ProjectRepo
 import com.dokiwei.wanandroid.util.ToastUtil
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
  */
 class ProjectViewModel : ViewModel() {
     private val projectRepo = ProjectRepo()
-    private val collectArticleRepo = CollectArticleRepo()
+    private val collectRepo = CollectRepo()
 
     //项目标题数据
     private val _projectTitleList = MutableStateFlow(SnapshotStateList<ProjectTitleData>())
@@ -115,7 +115,7 @@ class ProjectViewModel : ViewModel() {
     //收藏
     fun likeArticle(id: Int, context: Context, callBack: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val result = collectArticleRepo.likeArticle(id)
+            val result = collectRepo.like(id)
             if (result.isFailure) {
                 ToastUtil.showMsg(context, "收藏失败")
                 callBack(false)
@@ -130,7 +130,7 @@ class ProjectViewModel : ViewModel() {
     //取消收藏
     fun unlikeArticle(id: Int, context: Context, callBack: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val result = collectArticleRepo.unLikeArticle(id)
+            val result = collectRepo.unlike(id)
             if (result.isFailure) {
                 ToastUtil.showMsg(context, "取消收藏失败")
                 callBack(true)

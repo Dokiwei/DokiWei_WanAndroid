@@ -1,6 +1,5 @@
 package com.dokiwei.wanandroid.ui.screens.startscreen
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -20,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.dokiwei.wanandroid.ui.component.mainBody
-import com.dokiwei.wanandroid.util.LoginStateHelper
 import kotlinx.coroutines.delay
 
 /**
@@ -29,7 +27,6 @@ import kotlinx.coroutines.delay
  */
 @Composable
 fun StartScreen(navController: NavHostController) {
-    val context= LocalContext.current
     var titleVisible by remember {
         mutableStateOf(false)
     }
@@ -37,13 +34,14 @@ fun StartScreen(navController: NavHostController) {
         delay(1000)
         titleVisible = true
         delay(500)
-        if (LoginStateHelper.getLoginState(context).isLoggedIn){
-            Log.e("启动页","已登录")
-            navController.navigate("主页")
-        }else{
-            Log.e("启动页","未登录")
-            navController.navigate("登录页")
-        }
+        navController.navigate("主页")
+//        if (LoginStateHelper.getLoginState(context).isLoggedIn){
+//            Log.e("启动页","已登录")
+//            navController.navigate("主页")
+//        }else{
+//            Log.e("启动页","未登录")
+//            navController.navigate("登录页")
+//        }
     }
     Column(
         Modifier.mainBody(),

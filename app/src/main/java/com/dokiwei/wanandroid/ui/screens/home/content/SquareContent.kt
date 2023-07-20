@@ -29,8 +29,8 @@ fun SquareContent(
     val articleList by vm.userArticleList.collectAsState()
     val isRefreshing = vm.isRefreshing
 
-    if (articleList.isEmpty()) Loading()
 
+    if (articleList.isEmpty()) Loading(onClick = { vm.onRefresh() })
     MySwipeRefresh(
         scrollToTop = scrollToTop,
         isRefreshing = isRefreshing,

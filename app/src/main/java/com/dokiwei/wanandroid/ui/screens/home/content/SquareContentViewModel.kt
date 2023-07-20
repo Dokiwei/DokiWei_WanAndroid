@@ -7,7 +7,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dokiwei.wanandroid.data.ArticleListData
-import com.dokiwei.wanandroid.network.repository.CollectArticleRepo
+import com.dokiwei.wanandroid.network.repository.CollectRepo
 import com.dokiwei.wanandroid.network.repository.UserArticleRepo
 import com.dokiwei.wanandroid.util.ToastUtil
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
  */
 class SquareContentViewModel : ViewModel() {
     private val userArticleRepo = UserArticleRepo()
-    private val collectArticleRepo = CollectArticleRepo()
+    private val collectRepo = CollectRepo()
 
     //初始化
     init {
@@ -75,7 +75,7 @@ class SquareContentViewModel : ViewModel() {
     //收藏
     fun likeArticle(id: Int, context: Context, callBack: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val result = collectArticleRepo.likeArticle(id)
+            val result = collectRepo.like(id)
             if (result.isFailure) {
                 ToastUtil.showMsg(context, "收藏失败")
                 callBack(false)
@@ -90,7 +90,7 @@ class SquareContentViewModel : ViewModel() {
     //取消收藏
     fun unlikeArticle(id: Int, context: Context, callBack: (Boolean) -> Unit) {
         viewModelScope.launch {
-            val result = collectArticleRepo.unLikeArticle(id)
+            val result = collectRepo.unlike(id)
             if (result.isFailure) {
                 ToastUtil.showMsg(context, "取消收藏失败")
                 callBack(true)

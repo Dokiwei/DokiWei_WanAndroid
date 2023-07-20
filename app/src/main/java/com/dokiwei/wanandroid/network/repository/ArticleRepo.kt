@@ -13,7 +13,7 @@ import kotlinx.serialization.json.jsonPrimitive
  * @author DokiWei
  * @date 2023/7/11 20:02
  */
-class ArticleListRepo {
+class ArticleRepo {
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun getArticleList(page: Int): Result<List<ArticleListData>> {
