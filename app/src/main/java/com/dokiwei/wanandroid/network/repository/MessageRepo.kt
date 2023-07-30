@@ -1,6 +1,6 @@
 package com.dokiwei.wanandroid.network.repository
 
-import com.dokiwei.wanandroid.data.MessageData
+import com.dokiwei.wanandroid.bean.MessageBean
 import com.dokiwei.wanandroid.network.client.RetrofitClient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -20,7 +20,7 @@ class MessageRepo {
 
     }
 
-    suspend fun getRead(page: Int): Result<List<MessageData>> {
+    suspend fun getRead(page: Int): Result<List<MessageBean>> {
         return try {
             val response = RetrofitClient.messageApi.getRead(page)
             val responseBody = response.string()
@@ -29,7 +29,7 @@ class MessageRepo {
             if (errorCode == 0) {
                 val dataJson = jsonElement["data"]?.jsonObject?.get("datas")?.jsonArray
                     ?: error("Missing data field")
-                val message = json.decodeFromJsonElement<List<MessageData>>(dataJson)
+                val message = json.decodeFromJsonElement<List<MessageBean>>(dataJson)
                 Result.success(message)
             } else {
                 Result.failure(Exception("Error code: $errorCode"))
@@ -39,7 +39,7 @@ class MessageRepo {
         }
     }
 
-    suspend fun getUnread(page: Int): Result<List<MessageData>> {
+    suspend fun getUnread(page: Int): Result<List<MessageBean>> {
         return try {
             val response = RetrofitClient.messageApi.getUnread(page)
             val responseBody = response.string()
@@ -48,7 +48,7 @@ class MessageRepo {
             if (errorCode == 0) {
                 val dataJson = jsonElement["data"]?.jsonObject?.get("datas")?.jsonArray
                     ?: error("Missing data field")
-                val message = json.decodeFromJsonElement<List<MessageData>>(dataJson)
+                val message = json.decodeFromJsonElement<List<MessageBean>>(dataJson)
                 Result.success(message)
             } else {
                 Result.failure(Exception("Error code: $errorCode"))

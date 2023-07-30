@@ -12,7 +12,7 @@ class HomeViewModel : ViewModel() {
 
 
     //tabRow数据
-    private val _selectedTabIndex = mutableIntStateOf(0)
+    private val _selectedTabIndex = mutableIntStateOf(1)
     val selectedTabIndex: State<Int> = _selectedTabIndex
     fun onTabSelected(index: Int) {
         _selectedTabIndex.intValue = index

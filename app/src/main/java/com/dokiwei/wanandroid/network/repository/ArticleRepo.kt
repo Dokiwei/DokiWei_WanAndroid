@@ -1,6 +1,6 @@
 package com.dokiwei.wanandroid.network.repository
 
-import com.dokiwei.wanandroid.data.ArticleListData
+import com.dokiwei.wanandroid.bean.ArticleBean
 import com.dokiwei.wanandroid.network.client.RetrofitClient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -16,7 +16,7 @@ import kotlinx.serialization.json.jsonPrimitive
 class ArticleRepo {
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun getArticleList(page: Int): Result<List<ArticleListData>> {
+    suspend fun getArticleList(page: Int): Result<List<ArticleBean>> {
         return try {
             val response = RetrofitClient.articleListApi.getArticleList(page)
             val responseBody = response.string()
@@ -25,7 +25,7 @@ class ArticleRepo {
             if (errorCode == 0) {
                 val dataJson = jsonElement["data"]?.jsonObject?.get("datas")?.jsonArray
                     ?: error("Missing data field")
-                val articleList = json.decodeFromJsonElement<List<ArticleListData>>(dataJson)
+                val articleList = json.decodeFromJsonElement<List<ArticleBean>>(dataJson)
                 Result.success(articleList)
             } else {
                 Result.failure(Exception("Error code: $errorCode"))

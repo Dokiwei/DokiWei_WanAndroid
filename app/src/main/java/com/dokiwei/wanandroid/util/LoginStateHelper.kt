@@ -1,7 +1,8 @@
 package com.dokiwei.wanandroid.util
 
 import android.content.Context
-import com.dokiwei.wanandroid.data.LoginState
+import com.dokiwei.wanandroid.bean.LoginBean
+import com.dokiwei.wanandroid.ui.main.MyApplication
 
 /**
  * @author DokiWei
@@ -9,8 +10,14 @@ import com.dokiwei.wanandroid.data.LoginState
  */
 // 保存登录状态
 object LoginStateHelper {
-    fun saveLoginState(context: Context, isLoggedIn: Boolean,isChecked:Boolean, username: String, password: String) {
-        val sharedPreferences = context.getSharedPreferences("login_state", Context.MODE_PRIVATE)
+    fun saveLoginState(
+        isLoggedIn: Boolean,
+        isChecked: Boolean,
+        username: String,
+        password: String
+    ) {
+        val sharedPreferences =
+            MyApplication.context.getSharedPreferences("login_state", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
             putBoolean("is_logged_in", isLoggedIn)
             putBoolean("is_remember_password", isChecked)
@@ -19,17 +26,21 @@ object LoginStateHelper {
             apply()
         }
     }
+
     // 读取登录状态
-    fun getLoginState(context: Context): LoginState {
-        val sharedPreferences = context.getSharedPreferences("login_state", Context.MODE_PRIVATE)
+    fun getLoginState(): LoginBean {
+        val sharedPreferences =
+            MyApplication.context.getSharedPreferences("login_state", Context.MODE_PRIVATE)
         val isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false)
         val isRememberPassword = sharedPreferences.getBoolean("is_remember_password", false)
         val username = sharedPreferences.getString("username", null)
         val password = sharedPreferences.getString("password", null)
-        return LoginState(isLoggedIn, isRememberPassword, username, password)
+        return LoginBean(isLoggedIn, isRememberPassword, username, password)
     }
-    fun saveLogoutState(context: Context) {
-        val sharedPreferences = context.getSharedPreferences("login_state", Context.MODE_PRIVATE)
+
+    fun saveLogoutState() {
+        val sharedPreferences =
+            MyApplication.context.getSharedPreferences("login_state", Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
             putBoolean("is_logged_in", false)
             apply()

@@ -21,19 +21,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.dokiwei.wanandroid.ui.component.Loading
-import com.dokiwei.wanandroid.ui.component.mainBody
-import com.dokiwei.wanandroid.ui.theme.MainTheme
+import com.dokiwei.wanandroid.util.ToastAndLogcatUtil
+import com.dokiwei.wanandroid.util.mainBody
 
 /**
  * @author DokiWei
@@ -42,17 +38,22 @@ import com.dokiwei.wanandroid.ui.theme.MainTheme
 @Composable
 fun RegisterScreen(navController: NavHostController) {
     val viewModel: RegisterViewModel = viewModel()
-    val context = LocalContext.current
     val registerState by viewModel.registerState.collectAsState()
     var name by remember { mutableStateOf("") }
     var psd by remember { mutableStateOf("") }
     var rePsd by remember { mutableStateOf("") }
-    val isError by viewModel.registerIsError.collectAsState()
-    LaunchedEffect(registerState) {
+    LaunchedEffect(registerState.isSuccess) {
         if (registerState.isSuccess) {
-            viewModel.saveUserData(context, isLoggedIn = true, isChecked = false, name, psd)
+            viewModel.dispatch(
+                RegisterIntent.SaveUserData(
+                    isLoggedIn = true, isChecked = false, name, psd
+                )
+            )
             navController.navigate("主页")
         }
+    }
+    LaunchedEffect(registerState.msg) {
+        if (registerState.msg.isNotEmpty()) ToastAndLogcatUtil.showMsg(registerState.msg)
     }
     Column(
         modifier = Modifier.mainBody(),
@@ -60,8 +61,7 @@ fun RegisterScreen(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth(0.8f),
+            modifier = Modifier.fillMaxWidth(0.8f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -70,65 +70,56 @@ fun RegisterScreen(navController: NavHostController) {
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold
             )
-            OutlinedTextField(
-                label = { Text(text = "用户名") },
-                modifier = Modifier
-                    .fillMaxWidth(),
+            OutlinedTextField(label = { Text(text = "用户名") },
+                modifier = Modifier.fillMaxWidth(),
                 value = name,
-                isError = isError.name,
+                isError = registerState.check.name,
                 leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null) },
                 onValueChange = {
                     name = it
-                    viewModel.checkText(it, field = "name")
+                    viewModel.dispatch(RegisterIntent.CheckText(it, field = "name"))
                 })
-            if (isError.name) {
+            if (registerState.check.name) {
                 Text(
                     text = "用户名不能为空",
-                    color = Color.Red,
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.onError,
+                    modifier = Modifier.fillMaxWidth(),
                     fontSize = 12.sp
                 )
             }
-            OutlinedTextField(
-                label = { Text(text = "密码") },
-                modifier = Modifier
-                    .fillMaxWidth(),
+            OutlinedTextField(label = { Text(text = "密码") },
+                modifier = Modifier.fillMaxWidth(),
                 value = psd,
-                isError = isError.psd,
+                isError = registerState.check.psd,
                 leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
                 visualTransformation = PasswordVisualTransformation(),
                 onValueChange = {
                     psd = it
-                    viewModel.checkText(it, field = "psd")
+                    viewModel.dispatch(RegisterIntent.CheckText(it, field = "psd"))
                 })
-            if (isError.psd) {
+            if (registerState.check.psd) {
                 Text(
                     text = "密码不能为空",
-                    color = Color.Red,
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.onError,
+                    modifier = Modifier.fillMaxWidth(),
                     fontSize = 12.sp
                 )
             }
-            OutlinedTextField(
-                label = { Text(text = "确认密码") },
-                modifier = Modifier
-                    .fillMaxWidth(),
+            OutlinedTextField(label = { Text(text = "确认密码") },
+                modifier = Modifier.fillMaxWidth(),
                 value = rePsd,
-                isError = isError.rePsd,
+                isError = registerState.check.rePsd,
                 leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
                 visualTransformation = PasswordVisualTransformation(),
                 onValueChange = {
                     rePsd = it
-                    viewModel.checkText(it, rePsd)
+                    viewModel.dispatch(RegisterIntent.CheckText(it, rePsd))
                 })
-            if (isError.rePsd) {
+            if (registerState.check.rePsd) {
                 Text(
                     text = "密码不相同",
-                    color = Color.Red,
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth(),
                     fontSize = 12.sp
                 )
             }
@@ -136,18 +127,10 @@ fun RegisterScreen(navController: NavHostController) {
         Button(modifier = Modifier
             .fillMaxWidth(0.7f)
             .padding(top = 10.dp), onClick = {
-            viewModel.register(context, name, psd, rePsd)
+            viewModel.dispatch(RegisterIntent.Register(name, psd, rePsd))
         }) {
             Text(text = "注册", style = MaterialTheme.typography.titleLarge)
         }
     }
     if (registerState.isLoading) Loading(onClick = {})
-}
-
-@Preview(showBackground = true)
-@Composable
-fun Pre() {
-    MainTheme {
-        RegisterScreen(navController = rememberNavController())
-    }
 }

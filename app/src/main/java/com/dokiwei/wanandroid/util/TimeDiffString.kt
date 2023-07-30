@@ -25,12 +25,12 @@ object TimeDiffString {
         val dateTime = LocalDateTime.parse(dateString, formatter)
         val now = LocalDateTime.now()
         val duration = Duration.between(dateTime, now)
-
         return when {
-            duration.seconds < 60 -> "${duration.seconds}秒前"
-            duration.toMinutes() < 60 -> "${duration.toMinutes()}分钟前"
-            duration.toHours() < 24 -> "${duration.toHours()}小时前"
-            duration.toDays() < 30 -> "${duration.toDays()}天前"
+            duration.seconds < 60 -> "${duration.seconds}秒内"
+            duration.toMinutes() < 60 -> "${duration.toMinutes()}分钟内"
+            duration.toHours() < 24 -> "${duration.toHours()}小时内"
+            duration.toDays() < 7 -> "${duration.toDays()}天前"
+            duration.toDays() < 30 -> "${duration.toDays() / 7}周前"
             duration.toDays() < 365 -> "${duration.toDays() / 30}个月前"
             else -> "${duration.toDays() / 365}年前"
         }

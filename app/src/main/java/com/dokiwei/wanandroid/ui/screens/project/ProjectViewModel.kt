@@ -1,19 +1,14 @@
 package com.dokiwei.wanandroid.ui.screens.project
 
-import android.content.Context
-import android.util.Log
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dokiwei.wanandroid.data.ProjectData
-import com.dokiwei.wanandroid.data.ProjectTitleData
-import com.dokiwei.wanandroid.network.repository.CollectRepo
+import com.dokiwei.wanandroid.bean.ProjectTabsBean
 import com.dokiwei.wanandroid.network.repository.ProjectRepo
-import com.dokiwei.wanandroid.util.ToastUtil
+import com.dokiwei.wanandroid.util.ToastAndLogcatUtil
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * @author DokiWei
@@ -21,125 +16,143 @@ import kotlinx.coroutines.launch
  */
 class ProjectViewModel : ViewModel() {
     private val projectRepo = ProjectRepo()
-    private val collectRepo = CollectRepo()
 
-    //项目标题数据
-    private val _projectTitleList = MutableStateFlow(SnapshotStateList<ProjectTitleData>())
-    val projectTitleList = _projectTitleList
-
-    //项目数据
-    private val _projectList = MutableStateFlow(SnapshotStateList<ProjectData>())
-    val projectList = _projectList
-
-    //当前选择的tab
-    private val _selectedTabIndex = mutableIntStateOf(0)
-    val selectedTabIndex = _selectedTabIndex
-    fun onTabSelected(index: Int) {
-        _selectedTabIndex.intValue = index
-        getProjectList(id = _projectTitleList.value[_selectedTabIndex.intValue].id)
-        _isTabExpand.value = false
-    }
-
-    //全部项目是否显示
-    private val _isTabExpand = mutableStateOf(false)
-    val isTabExpand = _isTabExpand
-    fun onTabExpanded(boolean: Boolean) {
-        _isTabExpand.value = boolean
-    }
-
-    //当前页
-    private val _nowPageIndex = MutableStateFlow(0)
-
-    //是否刷新
-    private val _isRefreshing = mutableStateOf(false)
-    val isRefreshing = _isRefreshing
+    private val _state = MutableStateFlow(ProjectState())
+    val state = _state
 
     //初始化
     init {
-        viewModelScope.launch {
-            getProjectTitleList()
-            if (_projectTitleList.value.isNotEmpty()) {
-                getProjectList(id = _projectTitleList.value[_selectedTabIndex.intValue].id)
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            runBlocking(Dispatchers.IO) { getProjectTitleList() }
+            getProjectList(id = _state.value.projectTabs[_state.value.selectedTabIndex].id)
         }
+    }
+
+    fun dispatch(intent: ProjectIntent) {
+        when (intent) {
+            is ProjectIntent.LoadMore -> loadMore()
+            is ProjectIntent.Refresh -> onRefresh()
+            is ProjectIntent.SelectedTab -> onTabSelected(intent.index)
+            is ProjectIntent.UpdateTabExpanded -> onTabExpanded(intent.boolean)
+            is ProjectIntent.UpdateScrollToTop -> handleAction(
+                ProjectAction.UpdateScrollToTop(
+                    intent.boolean
+                )
+            )
+        }
+    }
+
+    private fun handleAction(action: ProjectAction) {
+        when (action) {
+            is ProjectAction.LoadMore -> {
+                _state.value = _state.value.copy(nowPageIndex = _state.value.nowPageIndex + 1)
+                viewModelScope.launch(Dispatchers.IO) {
+                    _state.value = _state.value.copy(isLoadingMore = true)
+                    runBlocking(Dispatchers.IO) {
+                        getProjectList(
+                            _state.value.nowPageIndex,
+                            _state.value.projectTabs[_state.value.selectedTabIndex].id
+                        )
+                    }
+                    _state.value = _state.value.copy(isLoadingMore = false)
+                }
+            }
+
+            is ProjectAction.Refresh -> {
+                viewModelScope.launch {
+                    _state.value = _state.value.copy(isRefreshing = true)
+                    runBlocking(Dispatchers.IO) { getProjectList(id = _state.value.projectTabs[_state.value.selectedTabIndex].id) }
+                    _state.value = _state.value.copy(isRefreshing = false)
+                }
+            }
+
+            is ProjectAction.SetArticleData -> {
+                if (action.page == 0) _state.value.projectList.clear()
+                action.dataList?.let { list ->
+                    list.forEach {
+                        _state.value.projectList.add(it)
+                    }
+                }
+            }
+
+            is ProjectAction.SetTabsData -> {
+                action.dataList?.let { list ->
+                    list.forEach {
+                        _state.value.projectTabs.add(it)
+                    }
+                    val lastId = _state.value.projectTabs.removeLast().id
+                    val lastElement = ProjectTabsBean(lastId, "最新项目")
+                    _state.value.projectTabs.add(0, lastElement)
+                }
+            }
+
+            is ProjectAction.OutputLogcat -> ToastAndLogcatUtil.log(
+                action.tag, action.msg, action.level
+            )
+
+            is ProjectAction.ShowToast -> _state.value = _state.value.copy(msg = action.msg)
+            is ProjectAction.TabSelected -> {
+                viewModelScope.launch {
+                    _state.value = _state.value.copy(selectedTabIndex = action.index)
+                    getProjectList(id = _state.value.projectTabs[_state.value.selectedTabIndex].id)
+                    if (_state.value.isTabExpand) _state.value =
+                        _state.value.copy(isTabExpand = false)
+                }
+            }
+
+            is ProjectAction.TabExpanded -> _state.value =
+                _state.value.copy(isTabExpand = action.boolean)
+
+            is ProjectAction.UpdateScrollToTop -> _state.value =
+                _state.value.copy(scrollToTop = action.boolean)
+        }
+    }
+
+    private fun onTabSelected(index: Int) {
+        handleAction(ProjectAction.TabSelected(index))
+    }
+
+    private fun onTabExpanded(boolean: Boolean) {
+        handleAction(ProjectAction.TabExpanded(boolean))
     }
 
     //刷新数据
-    fun onRefresh() {
-        _isRefreshing.value = true
-        getProjectList(id = _projectTitleList.value[_selectedTabIndex.intValue].id)
-        _isRefreshing.value = false
+    private fun onRefresh() {
+        handleAction(ProjectAction.Refresh)
     }
 
-    fun loadMore(): Boolean {
-        if (_nowPageIndex.value < 40) {
-            _nowPageIndex.value += 1
-            getProjectList(
-                _nowPageIndex.value,
-                _projectTitleList.value[_selectedTabIndex.intValue].id
-            )
-            return true
-        }
-        return false
+    private fun loadMore() {
+        handleAction(ProjectAction.LoadMore)
     }
 
     //获取项目tab
     private suspend fun getProjectTitleList() {
         val result = projectRepo.getProjectTitle()
-        if (result.isSuccess) result.getOrNull()?.let { list ->
-            list.forEach {
-                _projectTitleList.value.add(it)
-            }
-            val lastId = _projectTitleList.value.removeLast().id
-            val lastElement = ProjectTitleData(lastId,"最新项目")
-            _projectTitleList.value.add(0, lastElement)
-        }
-        else Log.e("获取项目标题失败", result.exceptionOrNull().toString())
+        if (result.isSuccess) handleAction(ProjectAction.SetTabsData(result.getOrNull()))
+        else handleAction(
+            ProjectAction.OutputLogcat(
+                msg = "获取项目tabs失败:${
+                    result.exceptionOrNull().toString()
+                }"
+            )
+        )
     }
 
     //获取项目内容
-    private fun getProjectList(page: Int = 0, id: Int) {
-        viewModelScope.launch {
-            val result = projectRepo.getProject(page, id)
-            if (result.isSuccess) {
-                if (page == 0) _projectList.value.clear()
-                result.getOrNull()?.let { list ->
-                    list.forEach {
-                        _projectList.value.add(it)
-                    }
-                }
-            } else Log.e("获取项目失败", result.exceptionOrNull().toString())
-        }
-    }
-
-    //收藏
-    fun likeArticle(id: Int, context: Context, callBack: (Boolean) -> Unit) {
-        viewModelScope.launch {
-            val result = collectRepo.like(id)
-            if (result.isFailure) {
-                ToastUtil.showMsg(context, "收藏失败")
-                callBack(false)
-                Log.e("收藏操作异常", result.exceptionOrNull().toString())
-            } else {
-                ToastUtil.showMsg(context, "收藏成功")
-                callBack(true)
-            }
-        }
-    }
-
-    //取消收藏
-    fun unlikeArticle(id: Int, context: Context, callBack: (Boolean) -> Unit) {
-        viewModelScope.launch {
-            val result = collectRepo.unlike(id)
-            if (result.isFailure) {
-                ToastUtil.showMsg(context, "取消收藏失败")
-                callBack(true)
-                Log.e("取消收藏操作异常", result.exceptionOrNull().toString())
-            } else {
-                ToastUtil.showMsg(context, "取消收藏成功")
-                callBack(false)
-            }
-        }
+    private suspend fun getProjectList(page: Int = 0, id: Int) {
+        val result = projectRepo.getProject(page, id)
+        if (result.isSuccess) handleAction(
+            ProjectAction.SetArticleData(
+                page, result.getOrNull()
+            )
+        )
+        else handleAction(
+            ProjectAction.OutputLogcat(
+                msg = "获取项目失败:${
+                    result.exceptionOrNull().toString()
+                }"
+            )
+        )
     }
 
 }

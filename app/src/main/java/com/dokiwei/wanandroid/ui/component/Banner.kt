@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Scale
-import com.dokiwei.wanandroid.data.BannerData
+import com.dokiwei.wanandroid.bean.BannerBean
 import kotlinx.coroutines.delay
 
 /**
@@ -40,8 +40,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun Banner(
     pageCount: Int,
-    bannerData: List<BannerData>,
-    onClick: (BannerData) -> Unit
+    bannerData: List<BannerBean>,
+    onClick: (BannerBean) -> Unit
 ) {
     val pagerState = rememberPagerState(
         pageCount = { pageCount },

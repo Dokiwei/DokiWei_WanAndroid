@@ -1,13 +1,10 @@
 package com.dokiwei.wanandroid.ui.screens.register
 
-import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dokiwei.wanandroid.network.repository.LoginRepo
 import com.dokiwei.wanandroid.network.repository.RegisterRepo
 import com.dokiwei.wanandroid.util.LoginStateHelper
-import com.dokiwei.wanandroid.util.ToastUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -22,61 +19,80 @@ class RegisterViewModel : ViewModel() {
     //状态
     private val _registerState = MutableStateFlow(RegisterState())
     val registerState = _registerState
-    private val _registerIsError = MutableStateFlow(RegisterIsError())
-    val registerIsError = _registerIsError
 
-    //检查文字格式
-    fun checkText(text: String, confirmPsd: String? = null, field: String? = null) {
-        confirmPsd?.takeIf { text.trim() == confirmPsd.trim() }
-            ?.let { registerIsError.value = registerIsError.value.copy(rePsd = true) }
-        val isEmpty = text.isEmpty()
-        when (field) {
-            "name" -> registerIsError.value = registerIsError.value.copy(name = isEmpty)
-            "psd" -> registerIsError.value = registerIsError.value.copy(psd = isEmpty)
+
+    fun dispatch(intent: RegisterIntent) {
+        when (intent) {
+            is RegisterIntent.Register -> register(
+                intent.username, intent.password, intent.rePassword
+            )
+
+            is RegisterIntent.SaveUserData -> LoginStateHelper.saveLoginState(
+                intent.isLoggedIn, intent.isChecked, intent.username, intent.password
+            )
+
+            is RegisterIntent.CheckText -> checkText(intent.text, intent.confirmPsd, intent.field)
         }
     }
 
-    //保存用户数据
-    fun saveUserData(
-        context: Context,
-        isLoggedIn: Boolean,
-        isChecked: Boolean,
-        username: String,
-        password: String
-    ) {
-        LoginStateHelper.saveLoginState(context, isLoggedIn, isChecked, username, password)
+    private fun handleAction(action: RegisterAction) {
+        when (action) {
+            is RegisterAction.LoginSuccess -> _registerState.value =
+                _registerState.value.copy(isLoading = false)
+
+            is RegisterAction.LoginFailed -> _registerState.value =
+                _registerState.value.copy(isLoading = false, msg = action.error.toString())
+
+            is RegisterAction.RegisterStarted -> _registerState.value =
+                _registerState.value.copy(isLoading = true)
+
+            is RegisterAction.RegisterFailed -> _registerState.value =
+                _registerState.value.copy(isLoading = false, msg = action.error.toString())
+
+            is RegisterAction.CheckText -> {
+                action.confirmPsd?.takeIf { action.text.trim() == action.confirmPsd.trim() }?.let {
+                    _registerState.value =
+                        _registerState.value.copy(check = _registerState.value.check.copy(rePsd = true))
+                }
+                val isEmpty = action.text.isEmpty()
+                when (action.field) {
+                    "name" -> _registerState.value =
+                        _registerState.value.copy(check = _registerState.value.check.copy(name = isEmpty))
+
+                    "psd" -> _registerState.value =
+                        _registerState.value.copy(check = _registerState.value.check.copy(psd = isEmpty))
+                }
+            }
+
+            is RegisterAction.ShowToast -> _registerState.value =
+                _registerState.value.copy(msg = action.msg)
+
+            is RegisterAction.ShowLoadingProgress -> {}
+        }
+    }
+
+    //检查文字格式
+    private fun checkText(text: String, confirmPsd: String? = null, field: String? = null) {
+        handleAction(RegisterAction.CheckText(text, confirmPsd, field))
     }
 
     //注册
-    fun register(context: Context, name: String, psd: String, rePsd: String) {
-        _registerState.value = _registerState.value.copy(isLoading = true)
-        val message = when {
-            _registerIsError.value.name -> "用户名不能为空!!!"
-            _registerIsError.value.psd -> "密码不能为空!!!"
-            _registerIsError.value.rePsd -> "两次密码不相同!!!"
-            else -> null
-        }
-        if (message != null) {
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            _registerState.value = _registerState.value.copy(isLoading = false)
-        } else {
-            viewModelScope.launch {
-                val result = registerRepository.register(name, psd, rePsd)
-                if (result.isSuccess) {
-                    ToastUtil.showMsg(context, "注册成功")
+    private fun register(name: String, psd: String, rePsd: String) {
+        when {
+            name.isEmpty() -> handleAction(RegisterAction.ShowToast("用户名不能为空!!!"))
+            psd.isEmpty() -> handleAction(RegisterAction.ShowToast("密码不能为空!!!"))
+            rePsd.isEmpty() -> handleAction(RegisterAction.ShowToast("确认密码不能为空!!!"))
+            rePsd != psd -> handleAction(RegisterAction.ShowToast("两次密码输入不相同!!!"))
+            else -> viewModelScope.launch {
+                handleAction(RegisterAction.RegisterStarted)
+                val registerResult = registerRepository.register(name, psd, rePsd)
+                if (registerResult.isSuccess) {
                     val loginResult = loginRepository.login(name, psd)
-                    _registerState.value = _registerState.value.copy(isLoading = false)
-                    if (loginResult.isSuccess) {
-                        _registerState.value = _registerState.value.copy(isSuccess = true)
-                    } else {
-                        ToastUtil.showMsg(context, "登录失败:${loginResult.exceptionOrNull()}")
-                    }
-                } else {
-                    ToastUtil.showMsg(context, "注册失败:${result.exceptionOrNull()}")
-                }
+                    if (loginResult.isSuccess) handleAction(RegisterAction.LoginSuccess)
+                    else handleAction(RegisterAction.LoginFailed(loginResult.exceptionOrNull()))
+                } else handleAction(RegisterAction.RegisterFailed(registerResult.exceptionOrNull()))
             }
         }
-
     }
 
 }

@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,17 +28,15 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.dokiwei.wanandroid.R
 import com.dokiwei.wanandroid.ui.component.CardContent
-import com.dokiwei.wanandroid.ui.component.mainBody
+import com.dokiwei.wanandroid.util.mainBody
 
 /**
  * @author DokiWei
  * @date 2023/7/9 17:30
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PersonScreen(navController: NavController) {
     val vm: PersonViewModel = viewModel()
-    val context = LocalContext.current
     val userInfoData by vm.userInfoList.collectAsState()
     val isGetUserInfoSuccess = userInfoData != null
     Column(Modifier.mainBody()) {
@@ -132,7 +128,7 @@ fun PersonScreen(navController: NavController) {
             CardContent(
                 onClick = {
                     if (userInfoData != null)
-                        vm.logout(context)
+                        vm.dispatch(PersonIntent.Logout)
                     navController.navigate("登录页")
                 }
             ) {

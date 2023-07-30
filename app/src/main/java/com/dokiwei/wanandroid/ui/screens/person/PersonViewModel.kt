@@ -1,14 +1,12 @@
 package com.dokiwei.wanandroid.ui.screens.person
 
-import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dokiwei.wanandroid.data.UserInfoData
+import com.dokiwei.wanandroid.bean.UserInfoBean
 import com.dokiwei.wanandroid.network.repository.LogoutRepo
 import com.dokiwei.wanandroid.network.repository.UserInfoRepo
 import com.dokiwei.wanandroid.util.LoginStateHelper
-import com.dokiwei.wanandroid.util.ToastUtil
+import com.dokiwei.wanandroid.util.ToastAndLogcatUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -20,7 +18,7 @@ class PersonViewModel : ViewModel() {
     private val logoutRepository = LogoutRepo()
     private val userInfoRepo = UserInfoRepo()
 
-    private val _userInfoList = MutableStateFlow<UserInfoData?>(null)
+    private val _userInfoList = MutableStateFlow<UserInfoBean?>(null)
     val userInfoList = _userInfoList
 
     //初始化
@@ -28,27 +26,42 @@ class PersonViewModel : ViewModel() {
         getUserInfo()
     }
 
+    fun dispatch(intent: PersonIntent) {
+        when (intent) {
+            is PersonIntent.Logout -> logout()
+        }
+    }
+
+    private fun handleAction(action: PersonAction) {
+        when (action) {
+            is PersonAction.OutputLogcat -> ToastAndLogcatUtil.log("PersonAction", action.msg, 0)
+            is PersonAction.SetUserInfo -> _userInfoList.value = action.data
+        }
+    }
+
     //获取用户信息
     private fun getUserInfo() {
         viewModelScope.launch {
             val result = userInfoRepo.getUserInfo()
-            if (result.isSuccess) {
-                _userInfoList.value = result.getOrNull()
-            } else {
-                Log.e("", result.exceptionOrNull().toString())
-            }
+            if (result.isSuccess) handleAction(PersonAction.SetUserInfo(result.getOrNull()))
+            else handleAction(
+                PersonAction.OutputLogcat(
+                    "获取用户信息异常:${
+                        result.exceptionOrNull().toString()
+                    }"
+                )
+            )
         }
     }
 
     //登出
-    fun logout(context: Context) {
+    private fun logout() {
         viewModelScope.launch {
             val result = logoutRepository.logout()
             if (result.isSuccess) {
-                ToastUtil.showMsg(context, "退出登录成功")
-                LoginStateHelper.saveLogoutState(context)
+                LoginStateHelper.saveLogoutState()
             } else {
-                ToastUtil.showMsg(context, "退出登录失败:${result.exceptionOrNull()}")
+                handleAction(PersonAction.OutputLogcat("退出登录失败:${result.exceptionOrNull()}"))
             }
         }
     }

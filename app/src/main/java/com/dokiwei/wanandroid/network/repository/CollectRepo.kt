@@ -1,6 +1,6 @@
 package com.dokiwei.wanandroid.network.repository
 
-import com.dokiwei.wanandroid.data.MyLikeData
+import com.dokiwei.wanandroid.bean.CollectBean
 import com.dokiwei.wanandroid.network.client.RetrofitClient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -17,7 +17,7 @@ import org.json.JSONObject
 class CollectRepo {
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun myLike(page: Int): Result<List<MyLikeData>> {
+    suspend fun myLike(page: Int): Result<List<CollectBean>> {
         return try {
             val response = RetrofitClient.collectApi.myLike(page)
             val responseBody = response.string()
@@ -26,7 +26,7 @@ class CollectRepo {
             if (errorCode == 0) {
                 val dataJson = jsonElement["data"]?.jsonObject?.get("datas")?.jsonArray
                     ?: error("Missing data field")
-                val myLikeList = json.decodeFromJsonElement<List<MyLikeData>>(dataJson)
+                val myLikeList = json.decodeFromJsonElement<List<CollectBean>>(dataJson)
                 Result.success(myLikeList)
             } else {
                 Result.failure(Exception("Error code:$errorCode"))
@@ -36,7 +36,7 @@ class CollectRepo {
         }
     }
 
-    suspend fun like(id: Int): Result<Boolean> {
+    suspend fun collect(id: Int): Result<Boolean> {
         return try {
             val response = RetrofitClient.collectApi.like(id)
             val responseBody = response.string()
@@ -52,7 +52,7 @@ class CollectRepo {
         }
     }
 
-    suspend fun likeCustom(id:Int): Result<Boolean>{
+    suspend fun collectCustom(id: Int): Result<Boolean> {
         return try {
             val response = RetrofitClient.collectApi.likeCustom(id)
             val responseBody = response.string()
@@ -68,7 +68,7 @@ class CollectRepo {
         }
     }
 
-    suspend fun unlike(id: Int): Result<Boolean> {
+    suspend fun unCollect(id: Int): Result<Boolean> {
         return try {
             val response = RetrofitClient.collectApi.unlike(id)
             val responseBody = response.string()
@@ -84,7 +84,7 @@ class CollectRepo {
         }
     }
 
-    suspend fun unlikeCustom(id: Int): Result<Boolean> {
+    suspend fun unCollectCustom(id: Int): Result<Boolean> {
         return try {
             val response = RetrofitClient.collectApi.unLikeCustom(id)
             val responseBody = response.string()

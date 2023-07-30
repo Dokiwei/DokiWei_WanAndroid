@@ -1,6 +1,6 @@
 package com.dokiwei.wanandroid.network.repository
 
-import com.dokiwei.wanandroid.data.UserInfoData
+import com.dokiwei.wanandroid.bean.UserInfoBean
 import com.dokiwei.wanandroid.network.client.RetrofitClient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -15,7 +15,7 @@ import kotlinx.serialization.json.jsonPrimitive
 class UserInfoRepo {
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun getUserInfo(): Result<UserInfoData> {
+    suspend fun getUserInfo(): Result<UserInfoBean> {
         return try {
             val response = RetrofitClient.userInfoApi.userInfo()
             val responseBody = response.string()
@@ -23,7 +23,7 @@ class UserInfoRepo {
             val errorCode = jsonElement["errorCode"]?.jsonPrimitive?.int ?: -1
             if (errorCode == 0) {
                 val dataJson = jsonElement["data"]?.jsonObject ?: error("Missing data field")
-                val userInfo = json.decodeFromJsonElement<UserInfoData>(dataJson)
+                val userInfo = json.decodeFromJsonElement<UserInfoBean>(dataJson)
                 Result.success(userInfo)
             } else {
                 Result.failure(Exception("Error code: $errorCode"))

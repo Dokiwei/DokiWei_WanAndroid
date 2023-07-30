@@ -14,11 +14,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.dokiwei.wanandroid.ui.component.mainBody
+import com.dokiwei.wanandroid.util.mainBody
 import kotlinx.coroutines.delay
 
 /**
@@ -35,13 +34,6 @@ fun StartScreen(navController: NavHostController) {
         titleVisible = true
         delay(500)
         navController.navigate("主页")
-//        if (LoginStateHelper.getLoginState(context).isLoggedIn){
-//            Log.e("启动页","已登录")
-//            navController.navigate("主页")
-//        }else{
-//            Log.e("启动页","未登录")
-//            navController.navigate("登录页")
-//        }
     }
     Column(
         Modifier.mainBody(),

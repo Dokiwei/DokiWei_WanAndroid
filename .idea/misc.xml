@@ -1,7 +1,8 @@
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="1">
+    <list size="2">
       <item index="0" class="java.lang.String" itemvalue="retrofit2.http.FormUrlEncoded" />
+      <item index="1" class="java.lang.String" itemvalue="retrofit2.http.GET" />
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />

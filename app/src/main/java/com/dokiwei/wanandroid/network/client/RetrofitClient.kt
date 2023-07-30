@@ -9,6 +9,7 @@ import com.dokiwei.wanandroid.network.api.MessageApi
 import com.dokiwei.wanandroid.network.api.ProjectApi
 import com.dokiwei.wanandroid.network.api.QaApi
 import com.dokiwei.wanandroid.network.api.RegisterApi
+import com.dokiwei.wanandroid.network.api.SearchApi
 import com.dokiwei.wanandroid.network.api.UserArticleApi
 import com.dokiwei.wanandroid.network.api.UserInfoApi
 import com.dokiwei.wanandroid.ui.main.MyApplication
@@ -17,6 +18,7 @@ import com.franmontiel.persistentcookiejar.cache.SetCookieCache
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import java.util.concurrent.TimeUnit
 
 /**
  * @author DokiWei
@@ -26,6 +28,9 @@ object RetrofitClient {
     private val cookieJar =
         PersistentCookieJar(SetCookieCache(), SharedPrefsCookiePersistor(MyApplication.context))
     private val client = OkHttpClient.Builder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
         .retryOnConnectionFailure(true)
         .addInterceptor(LoggingInterceptor())
         .cookieJar(cookieJar)
@@ -47,5 +52,6 @@ object RetrofitClient {
     val qaApi: QaApi = retrofit.create(QaApi::class.java)
     val projectApi: ProjectApi = retrofit.create(ProjectApi::class.java)
     val messageApi: MessageApi = retrofit.create(MessageApi::class.java)
+    val searchApi: SearchApi = retrofit.create(SearchApi::class.java)
 
 }

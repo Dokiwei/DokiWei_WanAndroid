@@ -8,7 +8,7 @@ import android.content.Context
  * @author DokiWei
  * @date 2023/7/13 23:02
  */
-class MyApplication:Application() {
+class MyApplication : Application() {
     companion object {
         @SuppressLint("StaticFieldLeak")
         lateinit var context: Context

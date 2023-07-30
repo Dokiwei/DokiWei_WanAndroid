@@ -1,6 +1,5 @@
 package com.dokiwei.wanandroid.ui.screens.login
 
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,8 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,8 +35,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.dokiwei.wanandroid.ui.component.Loading
-import com.dokiwei.wanandroid.ui.component.mainBody
 import com.dokiwei.wanandroid.ui.theme.MainTheme
+import com.dokiwei.wanandroid.util.ToastAndLogcatUtil
+import com.dokiwei.wanandroid.util.mainBody
 import kotlin.system.exitProcess
 
 /**
@@ -48,10 +46,9 @@ import kotlin.system.exitProcess
  */
 @Composable
 fun LoginScreen(navController: NavHostController) {
-    val viewModel: LoginViewModel = viewModel()
-    val context = LocalContext.current
-    val loginState by viewModel.loginState.collectAsState()
-    val isError by viewModel.loginIsError.collectAsState()
+    val vm: LoginViewModel = viewModel()
+    val loginState by vm.loginState.collectAsState()
+
     var name by remember { mutableStateOf("") }
     var psd by remember { mutableStateOf("") }
     //返回监听
@@ -60,27 +57,42 @@ fun LoginScreen(navController: NavHostController) {
         if (backPressed.longValue + 2000 > System.currentTimeMillis()) {
             exitProcess(0)
         } else {
-            Toast.makeText(context, "再按一次退出", Toast.LENGTH_SHORT).show()
+            ToastAndLogcatUtil.showMsg("再按一次退出")
             backPressed.longValue = System.currentTimeMillis()
         }
     })
-    LaunchedEffect(Unit) {
+    LaunchedEffect(key1 = loginState.errorMsg, key2 = loginState.isLoggedIn) {
+        when {
+            loginState.errorMsg.isNotEmpty() -> {
+                ToastAndLogcatUtil.showMsg(loginState.errorMsg)
+            }
+
+            loginState.isLoggedIn -> {
+                vm.dispatch(
+                    LoginIntent.SaveUserData(
+                        true,
+                        loginState.isRememberPasswordChecked,
+                        name,
+                        psd
+                    )
+                )
+                navController.navigate("主页")
+            }
+        }
+    }
+    LaunchedEffect(loginState.rememberLoginSate) {
         //默认会自动填充保存的用户名,并且在保存的数据中记住密码为true的话,密码也会自动填充
-        viewModel.getUserData(context).also {
+        loginState.rememberLoginSate.also {
             it.username?.let { itName -> name = itName }
         }.takeIf {
             it.isRememberPassword
         }?.let {
-            viewModel.updateRememberPasswordChecked(checked = true)
+            vm.dispatch(LoginIntent.UpdateRememberPasswordChecked(true))
             it.password?.let { itPsd -> psd = itPsd }
         }
     }
-    LaunchedEffect(loginState) {
-        if (loginState.isLoggedIn) {
-            viewModel.saveUserData(context, true, loginState.isRememberPasswordChecked, name, psd)
-            navController.navigate("主页")
-        }
-    }
+
+
     Column(
         modifier = Modifier.mainBody(),
         verticalArrangement = Arrangement.Center,
@@ -102,16 +114,16 @@ fun LoginScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = name,
-                isError = isError.name,
+                isError = loginState.check.name,
                 leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null) },
                 onValueChange = {
                     name = it
-                    viewModel.checkText(it, "name")
+                    vm.dispatch(LoginIntent.CheckText(it, "name"))
                 })
-            if (isError.name) {
+            if (loginState.check.name) {
                 Text(
                     text = "用户名不能为空",
-                    color = Color.Red,
+                    color = MaterialTheme.colorScheme.onError,
                     modifier = Modifier
                         .fillMaxWidth(),
                     fontSize = 12.sp
@@ -122,17 +134,17 @@ fun LoginScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = psd,
-                isError = isError.psd,
+                isError = loginState.check.psd,
                 leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
                 visualTransformation = PasswordVisualTransformation(),
                 onValueChange = {
                     psd = it
-                    viewModel.checkText(it, "psd")
+                    vm.dispatch(LoginIntent.CheckText(it, "psd"))
                 })
-            if (isError.psd) {
+            if (loginState.check.psd) {
                 Text(
                     text = "密码不能为空",
-                    color = Color.Red,
+                    color = MaterialTheme.colorScheme.error,
                     modifier = Modifier
                         .fillMaxWidth(),
                     fontSize = 12.sp
@@ -147,7 +159,7 @@ fun LoginScreen(navController: NavHostController) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
                     checked = loginState.isRememberPasswordChecked,
-                    onCheckedChange = { viewModel.updateRememberPasswordChecked(it) })
+                    onCheckedChange = { vm.dispatch(LoginIntent.UpdateRememberPasswordChecked(it)) })
                 Text(text = "记住密码")
             }
             TextButton(onClick = { navController.navigate("注册页") }) {
@@ -156,15 +168,18 @@ fun LoginScreen(navController: NavHostController) {
         }
         Button(modifier = Modifier
             .fillMaxWidth(0.7f)
-            .padding(top = 10.dp), onClick = {
-            viewModel.login(context, name, psd)
-        }) {
+            .padding(top = 10.dp),
+            onClick = {
+                vm.dispatch(LoginIntent.Login(name, psd))
+            }) {
             Text(text = "登录", style = MaterialTheme.typography.titleLarge)
         }
     }
     if (loginState.isLoading) {
         Loading(onClick = {})
     }
+
+
 }
 
 @Preview(showBackground = true)
