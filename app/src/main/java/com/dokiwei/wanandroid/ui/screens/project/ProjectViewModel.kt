@@ -3,7 +3,7 @@ package com.dokiwei.wanandroid.ui.screens.project
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dokiwei.wanandroid.bean.ProjectTabsBean
-import com.dokiwei.wanandroid.network.repository.ProjectRepo
+import com.dokiwei.wanandroid.network.impl.ProjectApiImpl
 import com.dokiwei.wanandroid.util.ToastAndLogcatUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.runBlocking
  * @date 2023/7/15 16:18
  */
 class ProjectViewModel : ViewModel() {
-    private val projectRepo = ProjectRepo()
+    private val projectApiImpl = ProjectApiImpl()
 
     private val _state = MutableStateFlow(ProjectState())
     val state = _state
@@ -127,7 +127,7 @@ class ProjectViewModel : ViewModel() {
 
     //获取项目tab
     private suspend fun getProjectTitleList() {
-        val result = projectRepo.getProjectTitle()
+        val result = projectApiImpl.getProjectTitle()
         if (result.isSuccess) handleAction(ProjectAction.SetTabsData(result.getOrNull()))
         else handleAction(
             ProjectAction.OutputLogcat(
@@ -140,7 +140,7 @@ class ProjectViewModel : ViewModel() {
 
     //获取项目内容
     private suspend fun getProjectList(page: Int = 0, id: Int) {
-        val result = projectRepo.getProject(page, id)
+        val result = projectApiImpl.getProject(page, id)
         if (result.isSuccess) handleAction(
             ProjectAction.SetArticleData(
                 page, result.getOrNull()

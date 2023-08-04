@@ -2,8 +2,7 @@ package com.dokiwei.wanandroid.ui.screens.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dokiwei.wanandroid.network.repository.LoginRepo
-import com.dokiwei.wanandroid.network.repository.RegisterRepo
+import com.dokiwei.wanandroid.network.impl.AccountApiImpl
 import com.dokiwei.wanandroid.util.LoginStateHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -13,8 +12,7 @@ import kotlinx.coroutines.launch
  * @date 2023/7/8 21:11
  */
 class RegisterViewModel : ViewModel() {
-    private val registerRepository = RegisterRepo()
-    private val loginRepository = LoginRepo()
+    private val accountApiImpl = AccountApiImpl()
 
     //状态
     private val _registerState = MutableStateFlow(RegisterState())
@@ -85,9 +83,9 @@ class RegisterViewModel : ViewModel() {
             rePsd != psd -> handleAction(RegisterAction.ShowToast("两次密码输入不相同!!!"))
             else -> viewModelScope.launch {
                 handleAction(RegisterAction.RegisterStarted)
-                val registerResult = registerRepository.register(name, psd, rePsd)
+                val registerResult = accountApiImpl.register(name, psd, rePsd)
                 if (registerResult.isSuccess) {
-                    val loginResult = loginRepository.login(name, psd)
+                    val loginResult = accountApiImpl.login(name, psd)
                     if (loginResult.isSuccess) handleAction(RegisterAction.LoginSuccess)
                     else handleAction(RegisterAction.LoginFailed(loginResult.exceptionOrNull()))
                 } else handleAction(RegisterAction.RegisterFailed(registerResult.exceptionOrNull()))

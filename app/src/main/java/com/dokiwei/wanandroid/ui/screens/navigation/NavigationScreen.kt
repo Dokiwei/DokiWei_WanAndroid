@@ -1,4 +1,4 @@
-package com.dokiwei.wanandroid.ui.screens.mainnavhost
+package com.dokiwei.wanandroid.ui.screens.navigation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -49,6 +49,7 @@ import com.dokiwei.wanandroid.ui.screens.project.ProjectScreen
 import com.dokiwei.wanandroid.ui.screens.register.RegisterScreen
 import com.dokiwei.wanandroid.ui.screens.search.SearchScreen
 import com.dokiwei.wanandroid.ui.screens.startscreen.StartScreen
+import com.dokiwei.wanandroid.ui.screens.tree.TreeScreen
 import com.dokiwei.wanandroid.ui.screens.webview.WebViewScreen
 import com.dokiwei.wanandroid.util.myCustomNavigate
 
@@ -58,7 +59,7 @@ import com.dokiwei.wanandroid.util.myCustomNavigate
  */
 @Composable
 fun MainNavHost() {
-    val viewModel: MainNavHostViewModel = viewModel()
+    val viewModel: NavigationViewModel = viewModel()
     val navController = rememberNavController()
     var selectedIndex by remember { mutableIntStateOf(0) }
     val showBottomBar by viewModel.navBottomBar.collectAsState()
@@ -75,8 +76,12 @@ fun MainNavHost() {
                 selectedIndex = 1
             }
 
-            "我的" -> {
+            "体系" -> {
                 selectedIndex = 2
+            }
+
+            "我的" -> {
+                selectedIndex = 3
             }
         }
     }
@@ -85,6 +90,7 @@ fun MainNavHost() {
             val items = listOf(
                 "主页",
                 "项目",
+                "体系",
                 "我的"
             )
             AnimatedVisibility(
@@ -120,7 +126,9 @@ fun MainNavHost() {
                                                 1 -> ImageVector.vectorResource(
                                                     R.drawable.ic_project
                                                 )
-
+                                                2-> ImageVector.vectorResource(
+                                                    R.drawable.ic_tree
+                                                )
                                                 else -> Icons.Rounded.Person
                                             },
                                             contentDescription = null,
@@ -153,7 +161,6 @@ fun MainNavHost() {
             startDestination = "启动页",
             modifier = Modifier.padding(it)
         ) {
-
             composable(//动画启动页
                 route = "启动页",
                 enterTransition = ScreenAnim.enterScreenAnim(),
@@ -191,15 +198,6 @@ fun MainNavHost() {
                 HomeScreen(navController)
             }
             composable(
-                route = "我的",
-                enterTransition = ScreenAnim.enterScreenAnim(),
-                exitTransition = ScreenAnim.exitScreenAnim(),
-                popEnterTransition = ScreenAnim.popEnterScreenAnim(),
-                popExitTransition = ScreenAnim.popExitScreenAnim()
-            ) {
-                PersonScreen(navController)
-            }
-            composable(
                 route = "项目",
                 enterTransition = ScreenAnim.enterScreenAnim(),
                 exitTransition = ScreenAnim.exitScreenAnim(),
@@ -207,6 +205,24 @@ fun MainNavHost() {
                 popExitTransition = ScreenAnim.popExitScreenAnim()
             ) {
                 ProjectScreen(navController)
+            }
+            composable(
+                route = "体系",
+                enterTransition = ScreenAnim.enterScreenAnim(),
+                exitTransition = ScreenAnim.exitScreenAnim(),
+                popEnterTransition = ScreenAnim.popEnterScreenAnim(),
+                popExitTransition = ScreenAnim.popExitScreenAnim()
+            ) {
+                TreeScreen(navController)
+            }
+            composable(
+                route = "我的",
+                enterTransition = ScreenAnim.enterScreenAnim(),
+                exitTransition = ScreenAnim.exitScreenAnim(),
+                popEnterTransition = ScreenAnim.popEnterScreenAnim(),
+                popExitTransition = ScreenAnim.popExitScreenAnim()
+            ) {
+                PersonScreen(navController)
             }
             composable(
                 route = "网页/{link}",
@@ -217,7 +233,7 @@ fun MainNavHost() {
                 arguments = listOf(navArgument("link") { type = NavType.StringType })
             ) { navBackStackEntry ->
                 navBackStackEntry.arguments?.getString("link")?.let { string ->
-                    WebViewScreen(link = string)
+                    WebViewScreen(string, navController)
                 }
             }
             composable(

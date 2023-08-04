@@ -67,22 +67,8 @@ fun MyLike(navController: NavController) {
                 onRefresh = { vm.dispatch(MyCollectIntent.Refresh) },
                 onLoadMore = { vm.dispatch(MyCollectIntent.LoadMore) },
                 onCollectClick = { item, like ->
-                    val isCustom = (item.originId == -1)
-                    if (like) {
-                        if (isCustom) vmP.dispatch(
-                            PublicIntent.UnCollectCustom(
-                                item.id
-                            )
-                        )
-                        else vmP.dispatch(PublicIntent.UnCollect(item.originId))
-                    } else {
-                        if (isCustom) vmP.dispatch(
-                            PublicIntent.CollectCustom(
-                                item.id
-                            )
-                        )
-                        else vmP.dispatch(PublicIntent.Collect(item.originId))
-                    }
+                    if (like) vmP.dispatch(PublicIntent.UnCollect(item.originId))
+                    else vmP.dispatch(PublicIntent.Collect(item.originId))
                 }
             )
         }

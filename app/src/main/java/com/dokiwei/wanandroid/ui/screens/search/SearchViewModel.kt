@@ -1,11 +1,8 @@
 package com.dokiwei.wanandroid.ui.screens.search
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dokiwei.wanandroid.bean.ArticleBean
-import com.dokiwei.wanandroid.bean.HotKeyBean
-import com.dokiwei.wanandroid.network.repository.SearchRepo
+import com.dokiwei.wanandroid.network.impl.HomeApiImpl
 import com.dokiwei.wanandroid.util.ToastAndLogcatUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,42 +13,8 @@ import kotlinx.coroutines.runBlocking
  * @author DokiWei
  * @date 2023/7/27 19:18
  */
-data class SearchState(
-    val isRefreshing: Boolean = false,
-    val isLoadingMore: Boolean = false,
-    val msg: String = "",
-    val searchResult: SnapshotStateList<ArticleBean> = SnapshotStateList(),
-    val nowPageIndex: Int = 0,
-    val scrollToTop: Boolean = false,
-    val hotKeys: List<HotKeyBean> = emptyList(),
-    val isShowResult: Boolean = false
-)
-
-sealed class SearchIntent {
-    data class Refresh(val k: String) : SearchIntent()
-    data class LoadMore(val k: String) : SearchIntent()
-    data class GetSearchResult(val page: Int = 0, val k: String) : SearchIntent()
-    data class UpdateScrollToTop(val boolean: Boolean) : SearchIntent()
-    object RevertToTheDefaultShowResult : SearchIntent()
-    object RevertToTheDefaultPageIndex : SearchIntent()
-}
-
-sealed class SearchAction {
-    data class ShowToast(val msg: String) : SearchAction()
-    data class OutputLogcat(val tag: String = "SearchAction", val msg: String, val level: Int = 0) :
-        SearchAction()
-
-    data class SetSearchResult(val page: Int = 0, val dataList: List<ArticleBean>?) : SearchAction()
-    data class LoadMore(val k: String) : SearchAction()
-    data class Refresh(val k: String) : SearchAction()
-    data class UpdateScrollToTop(val boolean: Boolean) : SearchAction()
-    object RevertToTheDefaultShowResult : SearchAction()
-    object RevertToTheDefaultPageIndex : SearchAction()
-    data class SetHotKey(val data: List<HotKeyBean>) : SearchAction()
-}
-
 class SearchViewModel : ViewModel() {
-    private val searchRepo = SearchRepo()
+    private val homeApiImpl = HomeApiImpl()
 
     private val _state = MutableStateFlow(SearchState())
     val state = _state
@@ -145,7 +108,7 @@ class SearchViewModel : ViewModel() {
     }
 
     private suspend fun getHotKey() {
-        val result = searchRepo.hotKey()
+        val result = homeApiImpl.getHotKey()
         if (result.isSuccess) handleAction(
             SearchAction.SetHotKey(
                 result.getOrNull() ?: emptyList()
@@ -161,7 +124,7 @@ class SearchViewModel : ViewModel() {
     }
 
     private suspend fun search(page: Int = 0, k: String) {
-        val result = searchRepo.search(page, k)
+        val result = homeApiImpl.search(page, k)
         if (result.isSuccess) handleAction(
             SearchAction.SetSearchResult(
                 page, result.getOrNull()

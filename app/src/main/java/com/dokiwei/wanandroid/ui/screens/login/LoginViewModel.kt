@@ -2,7 +2,7 @@ package com.dokiwei.wanandroid.ui.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dokiwei.wanandroid.network.repository.LoginRepo
+import com.dokiwei.wanandroid.network.impl.AccountApiImpl
 import com.dokiwei.wanandroid.util.LoginStateHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
  */
 
 class LoginViewModel : ViewModel() {
-    private val loginRepository = LoginRepo()
+    private val loginRepository = AccountApiImpl()
 
 
     private val _loginState = MutableStateFlow(LoginState())

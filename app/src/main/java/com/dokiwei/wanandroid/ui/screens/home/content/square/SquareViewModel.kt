@@ -2,7 +2,7 @@ package com.dokiwei.wanandroid.ui.screens.home.content.square
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dokiwei.wanandroid.network.repository.UserArticleRepo
+import com.dokiwei.wanandroid.network.impl.HomeApiImpl
 import com.dokiwei.wanandroid.util.ToastAndLogcatUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.runBlocking
  * @date 2023/7/14 22:50
  */
 class SquareViewModel : ViewModel() {
-    private val userArticleRepo = UserArticleRepo()
+    private val homeApiImpl = HomeApiImpl()
 
     private val _state = MutableStateFlow(SquareState())
     val state = _state
@@ -84,7 +84,7 @@ class SquareViewModel : ViewModel() {
 
     //获取广场文章
     private suspend fun getUserArticleList(page: Int = 0) {
-        val result = userArticleRepo.getArticleList(page)
+        val result = homeApiImpl.getSquareArticle(page)
         if (result.isSuccess) handleAction(
             SquareAction.SetArticleData(
                 page, result.getOrNull()

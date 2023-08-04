@@ -1,97 +1,84 @@
-package com.dokiwei.wanandroid.network.repository
+package com.dokiwei.wanandroid.network.impl
 
-import com.dokiwei.wanandroid.bean.CollectBean
+import com.dokiwei.wanandroid.bean.UserInfoBean
 import com.dokiwei.wanandroid.network.client.RetrofitClient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.int
-import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.json.JSONObject
 
 /**
  * @author DokiWei
- * @date 2023/7/11 22:47
+ * @date 2023/7/9 19:08
  */
-class CollectRepo {
+class AccountApiImpl {
+    suspend fun login(username: String, password: String): Result<Boolean> {
+        return try {
+            val response = RetrofitClient.accountApi.login(username, password)
+            val responseBody = response.string()
+            val jsonObject = JSONObject(responseBody)
+            val errorCode = jsonObject.getInt("errorCode")
+            if (errorCode == 0) {
+                Result.success(true)
+            } else {
+                Result.failure(Exception("Error code: $errorCode"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
+    suspend fun logout(): Result<Boolean> {
+        return try {
+            val response = RetrofitClient.accountApi.logout()
+            val responseBody = response.string()
+            val jsonObject = JSONObject(responseBody)
+            val errorCode = jsonObject.getInt("errorCode")
+            if (errorCode == 0) {
+                Result.success(true)
+            } else {
+                Result.failure(Exception("Error code: $errorCode"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun register(
+        username: String,
+        password: String,
+        rePassword: String
+    ): Result<Boolean> {
+        return try {
+            val response = RetrofitClient.accountApi.register(username, password, rePassword)
+            val responseBody = response.string()
+            val jsonObject = JSONObject(responseBody)
+            val errorCode = jsonObject.getInt("errorCode")
+            if (errorCode == 0) {
+                Result.success(true)
+            } else {
+                Result.failure(Exception("Error code: $errorCode"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun myLike(page: Int): Result<List<CollectBean>> {
+    suspend fun getUserInfo(): Result<UserInfoBean> {
         return try {
-            val response = RetrofitClient.collectApi.myLike(page)
+            val response = RetrofitClient.accountApi.userInfo()
             val responseBody = response.string()
             val jsonElement = json.parseToJsonElement(responseBody).jsonObject
             val errorCode = jsonElement["errorCode"]?.jsonPrimitive?.int ?: -1
             if (errorCode == 0) {
-                val dataJson = jsonElement["data"]?.jsonObject?.get("datas")?.jsonArray
-                    ?: error("Missing data field")
-                val myLikeList = json.decodeFromJsonElement<List<CollectBean>>(dataJson)
-                Result.success(myLikeList)
-            } else {
-                Result.failure(Exception("Error code:$errorCode"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun collect(id: Int): Result<Boolean> {
-        return try {
-            val response = RetrofitClient.collectApi.like(id)
-            val responseBody = response.string()
-            val jsonObject = JSONObject(responseBody)
-            val errorCode = jsonObject.getInt("errorCode")
-            if (errorCode == 0) {
-                Result.success(true)
-            } else {
-                Result.failure(Exception("Error code: $errorCode"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun collectCustom(id: Int): Result<Boolean> {
-        return try {
-            val response = RetrofitClient.collectApi.likeCustom(id)
-            val responseBody = response.string()
-            val jsonObject = JSONObject(responseBody)
-            val errorCode = jsonObject.getInt("errorCode")
-            if (errorCode == 0) {
-                Result.success(true)
-            } else {
-                Result.failure(Exception("Error code: $errorCode"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun unCollect(id: Int): Result<Boolean> {
-        return try {
-            val response = RetrofitClient.collectApi.unlike(id)
-            val responseBody = response.string()
-            val jsonObject = JSONObject(responseBody)
-            val errorCode = jsonObject.getInt("errorCode")
-            if (errorCode == 0) {
-                Result.success(true)
-            } else {
-                Result.failure(Exception("Error code: $errorCode"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun unCollectCustom(id: Int): Result<Boolean> {
-        return try {
-            val response = RetrofitClient.collectApi.unLikeCustom(id)
-            val responseBody = response.string()
-            val jsonObject = JSONObject(responseBody)
-            val errorCode = jsonObject.getInt("errorCode")
-            if (errorCode == 0) {
-                Result.success(true)
+                val dataJson = jsonElement["data"]?.jsonObject ?: error("Missing data field")
+                val userInfo = json.decodeFromJsonElement<UserInfoBean>(dataJson)
+                Result.success(userInfo)
             } else {
                 Result.failure(Exception("Error code: $errorCode"))
             }

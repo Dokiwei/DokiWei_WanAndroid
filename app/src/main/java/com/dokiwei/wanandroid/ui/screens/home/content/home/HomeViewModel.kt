@@ -2,8 +2,7 @@ package com.dokiwei.wanandroid.ui.screens.home.content.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dokiwei.wanandroid.network.repository.ArticleRepo
-import com.dokiwei.wanandroid.network.repository.BannerRepo
+import com.dokiwei.wanandroid.network.impl.HomeApiImpl
 import com.dokiwei.wanandroid.util.ToastAndLogcatUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,8 +15,7 @@ import kotlinx.coroutines.runBlocking
  */
 class HomeViewModel : ViewModel() {
 
-    private val bannerRepo = BannerRepo()
-    private val articleRepo = ArticleRepo()
+    private val homeApiImpl = HomeApiImpl()
 
     //初始化应用数据
     init {
@@ -96,7 +94,7 @@ class HomeViewModel : ViewModel() {
     //获取轮播图
     private suspend fun getBanner() {
         viewModelScope.launch {
-            val result = bannerRepo.banner()
+            val result = homeApiImpl.getBanner()
             if (result.isSuccess) handleAction(
                 HomeAction.SetBannerData(
                     result.getOrNull() ?: emptyList()
@@ -115,7 +113,7 @@ class HomeViewModel : ViewModel() {
     //获取首页文章
     private suspend fun getArticleList(page: Int = 0) {
         viewModelScope.launch {
-            val result = articleRepo.getArticleList(page)
+            val result = homeApiImpl.getHomeArticle(page)
             if (result.isSuccess) handleAction(
                 HomeAction.SetArticleData(
                     page, result.getOrNull()

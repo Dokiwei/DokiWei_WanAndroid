@@ -3,8 +3,7 @@ package com.dokiwei.wanandroid.ui.screens.person
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dokiwei.wanandroid.bean.UserInfoBean
-import com.dokiwei.wanandroid.network.repository.LogoutRepo
-import com.dokiwei.wanandroid.network.repository.UserInfoRepo
+import com.dokiwei.wanandroid.network.impl.AccountApiImpl
 import com.dokiwei.wanandroid.util.LoginStateHelper
 import com.dokiwei.wanandroid.util.ToastAndLogcatUtil
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,8 +14,7 @@ import kotlinx.coroutines.launch
  * @date 2023/7/13 15:59
  */
 class PersonViewModel : ViewModel() {
-    private val logoutRepository = LogoutRepo()
-    private val userInfoRepo = UserInfoRepo()
+    private val accountApiImpl = AccountApiImpl()
 
     private val _userInfoList = MutableStateFlow<UserInfoBean?>(null)
     val userInfoList = _userInfoList
@@ -42,7 +40,7 @@ class PersonViewModel : ViewModel() {
     //获取用户信息
     private fun getUserInfo() {
         viewModelScope.launch {
-            val result = userInfoRepo.getUserInfo()
+            val result = accountApiImpl.getUserInfo()
             if (result.isSuccess) handleAction(PersonAction.SetUserInfo(result.getOrNull()))
             else handleAction(
                 PersonAction.OutputLogcat(
@@ -57,7 +55,7 @@ class PersonViewModel : ViewModel() {
     //登出
     private fun logout() {
         viewModelScope.launch {
-            val result = logoutRepository.logout()
+            val result = accountApiImpl.logout()
             if (result.isSuccess) {
                 LoginStateHelper.saveLogoutState()
             } else {

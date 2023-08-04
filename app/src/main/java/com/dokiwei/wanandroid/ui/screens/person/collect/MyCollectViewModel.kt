@@ -2,7 +2,7 @@ package com.dokiwei.wanandroid.ui.screens.person.collect
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dokiwei.wanandroid.network.repository.CollectRepo
+import com.dokiwei.wanandroid.network.impl.CollectApiImpl
 import com.dokiwei.wanandroid.util.ToastAndLogcatUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +15,7 @@ import kotlinx.coroutines.runBlocking
  */
 
 class MyCollectViewModel : ViewModel() {
-    private val collectRepo = CollectRepo()
+    private val collectApiImpl = CollectApiImpl()
 
     private val _state = MutableStateFlow(MyCollectState())
     val state = _state
@@ -89,7 +89,7 @@ class MyCollectViewModel : ViewModel() {
     //获取我的收藏
     private suspend fun getMyLike(page: Int = 0) {
         viewModelScope.launch {
-            val result = collectRepo.myLike(page)
+            val result = collectApiImpl.myLike(page)
             if (result.isSuccess) handleAction(
                 MyCollectAction.SetMyCollectList(
                     page,

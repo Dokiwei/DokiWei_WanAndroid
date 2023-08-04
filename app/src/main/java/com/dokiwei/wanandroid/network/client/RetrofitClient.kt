@@ -1,17 +1,11 @@
 package com.dokiwei.wanandroid.network.client
 
-import com.dokiwei.wanandroid.network.api.ArticleListApi
-import com.dokiwei.wanandroid.network.api.BannerApi
+import com.dokiwei.wanandroid.network.api.AccountApi
 import com.dokiwei.wanandroid.network.api.CollectApi
-import com.dokiwei.wanandroid.network.api.LoginApi
-import com.dokiwei.wanandroid.network.api.LogoutApi
+import com.dokiwei.wanandroid.network.api.HomeApi
 import com.dokiwei.wanandroid.network.api.MessageApi
 import com.dokiwei.wanandroid.network.api.ProjectApi
-import com.dokiwei.wanandroid.network.api.QaApi
-import com.dokiwei.wanandroid.network.api.RegisterApi
-import com.dokiwei.wanandroid.network.api.SearchApi
-import com.dokiwei.wanandroid.network.api.UserArticleApi
-import com.dokiwei.wanandroid.network.api.UserInfoApi
+import com.dokiwei.wanandroid.network.api.TreeApi
 import com.dokiwei.wanandroid.ui.main.MyApplication
 import com.franmontiel.persistentcookiejar.PersistentCookieJar
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache
@@ -41,17 +35,11 @@ object RetrofitClient {
         .client(client)
         .build()
 
-    val loginApi: LoginApi = retrofit.create(LoginApi::class.java)
-    val registerApi: RegisterApi = retrofit.create(RegisterApi::class.java)
-    val logoutApi: LogoutApi = retrofit.create(LogoutApi::class.java)
-    val bannerApi: BannerApi = retrofit.create(BannerApi::class.java)
-    val articleListApi: ArticleListApi = retrofit.create(ArticleListApi::class.java)
-    val userArticleListApi: UserArticleApi = retrofit.create(UserArticleApi::class.java)
+    val accountApi: AccountApi = retrofit.create(AccountApi::class.java)
+    val homeApi: HomeApi = retrofit.create(HomeApi::class.java)
     val collectApi: CollectApi = retrofit.create(CollectApi::class.java)
-    val userInfoApi: UserInfoApi = retrofit.create(UserInfoApi::class.java)
-    val qaApi: QaApi = retrofit.create(QaApi::class.java)
     val projectApi: ProjectApi = retrofit.create(ProjectApi::class.java)
     val messageApi: MessageApi = retrofit.create(MessageApi::class.java)
-    val searchApi: SearchApi = retrofit.create(SearchApi::class.java)
+    val treeApi: TreeApi = retrofit.create(TreeApi::class.java)
 
 }

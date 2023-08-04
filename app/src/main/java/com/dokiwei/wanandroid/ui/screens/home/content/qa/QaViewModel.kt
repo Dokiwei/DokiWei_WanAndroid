@@ -2,7 +2,7 @@ package com.dokiwei.wanandroid.ui.screens.home.content.qa
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dokiwei.wanandroid.network.repository.QaRepo
+import com.dokiwei.wanandroid.network.impl.HomeApiImpl
 import com.dokiwei.wanandroid.util.ToastAndLogcatUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.runBlocking
  * @date 2023/7/14 23:15
  */
 class QaViewModel : ViewModel() {
-    private val qaRepo = QaRepo()
+    private val homeApiImpl = HomeApiImpl()
 
     private val _state = MutableStateFlow(QaState())
     val state = _state
@@ -85,7 +85,7 @@ class QaViewModel : ViewModel() {
 
     //获取问答列表
     private suspend fun getQaList(page: Int = 1) {
-        val result = qaRepo.getQa(page)
+        val result = homeApiImpl.getQa(page)
         if (result.isSuccess) handleAction(
             QaAction.SetArticleData(
                 page, result.getOrNull()

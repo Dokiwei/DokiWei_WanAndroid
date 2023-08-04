@@ -10,14 +10,20 @@ import retrofit2.http.Query
  * @date 2023/7/15 19:16
  */
 interface ProjectApi {
-    //获取项目
+    /**
+     * 项目
+     * @param page:页码(从0开始)
+     * @param id:项目分类id
+     */
     @GET("project/list/{page}/json")
     suspend fun getProjectList(
         @Path("page") page: Int,
         @Query("cid") id: Int
     ): ResponseBody
 
-    //获取项目标题
+    /**
+     * 项目分类
+     */
     @GET("project/tree/json")
     suspend fun getProjectTitle():ResponseBody
 }

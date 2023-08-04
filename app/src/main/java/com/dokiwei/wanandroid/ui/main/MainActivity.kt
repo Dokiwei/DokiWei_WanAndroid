@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.ViewModelProvider
-import com.dokiwei.wanandroid.ui.screens.mainnavhost.MainNavHost
+import com.dokiwei.wanandroid.ui.screens.navigation.MainNavHost
 import com.dokiwei.wanandroid.ui.theme.MainTheme
 
 class MainActivity : ComponentActivity() {

@@ -1,6 +1,7 @@
-package com.dokiwei.wanandroid.network.repository
+package com.dokiwei.wanandroid.network.impl
 
-import com.dokiwei.wanandroid.bean.MessageBean
+import com.dokiwei.wanandroid.bean.ProjectBean
+import com.dokiwei.wanandroid.bean.ProjectTabsBean
 import com.dokiwei.wanandroid.network.client.RetrofitClient
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -11,26 +12,20 @@ import kotlinx.serialization.json.jsonPrimitive
 
 /**
  * @author DokiWei
- * @date 2023/7/20 17:34
+ * @date 2023/7/15 17:57
  */
-class MessageRepo {
+class ProjectApiImpl {
     private val json = Json { ignoreUnknownKeys = true }
-
-    suspend fun getUnreadQuantity() {
-
-    }
-
-    suspend fun getRead(page: Int): Result<List<MessageBean>> {
+    suspend fun getProjectTitle(): Result<List<ProjectTabsBean>> {
         return try {
-            val response = RetrofitClient.messageApi.getRead(page)
+            val response = RetrofitClient.projectApi.getProjectTitle()
             val responseBody = response.string()
             val jsonElement = json.parseToJsonElement(responseBody).jsonObject
             val errorCode = jsonElement["errorCode"]?.jsonPrimitive?.int ?: -1
             if (errorCode == 0) {
-                val dataJson = jsonElement["data"]?.jsonObject?.get("datas")?.jsonArray
-                    ?: error("Missing data field")
-                val message = json.decodeFromJsonElement<List<MessageBean>>(dataJson)
-                Result.success(message)
+                val dataJson = jsonElement["data"]?.jsonArray ?: error("Missing data field")
+                val projectTitleList = json.decodeFromJsonElement<List<ProjectTabsBean>>(dataJson)
+                Result.success(projectTitleList)
             } else {
                 Result.failure(Exception("Error code: $errorCode"))
             }
@@ -39,21 +34,21 @@ class MessageRepo {
         }
     }
 
-    suspend fun getUnread(page: Int): Result<List<MessageBean>> {
+    suspend fun getProject(page: Int, id: Int): Result<List<ProjectBean>> {
         return try {
-            val response = RetrofitClient.messageApi.getUnread(page)
+            val response = RetrofitClient.projectApi.getProjectList(page, id)
             val responseBody = response.string()
             val jsonElement = json.parseToJsonElement(responseBody).jsonObject
             val errorCode = jsonElement["errorCode"]?.jsonPrimitive?.int ?: -1
             if (errorCode == 0) {
                 val dataJson = jsonElement["data"]?.jsonObject?.get("datas")?.jsonArray
                     ?: error("Missing data field")
-                val message = json.decodeFromJsonElement<List<MessageBean>>(dataJson)
-                Result.success(message)
+                val projectList = json.decodeFromJsonElement<List<ProjectBean>>(dataJson)
+                Result.success(projectList)
             } else {
                 Result.failure(Exception("Error code: $errorCode"))
             }
-        } catch (e: Exception) {
+        }catch (e: Exception) {
             Result.failure(e)
         }
     }
