@@ -1,47 +1,27 @@
 package com.dokiwei.wanandroid.network.impl
 
-import com.dokiwei.wanandroid.bean.UserInfoBean
+import com.dokiwei.wanandroid.model.apidata.CoinCountData
+import com.dokiwei.wanandroid.model.apidata.CoinInfoData
+import com.dokiwei.wanandroid.model.apidata.MessageData
+import com.dokiwei.wanandroid.model.apidata.UserInfoData
 import com.dokiwei.wanandroid.network.client.RetrofitClient
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.int
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import org.json.JSONObject
 
 /**
  * @author DokiWei
  * @date 2023/7/9 19:08
  */
 class AccountApiImpl {
-    suspend fun login(username: String, password: String): Result<Boolean> {
+    suspend fun login(username: String, password: String): Result<Int> {
         return try {
-            val response = RetrofitClient.accountApi.login(username, password)
-            val responseBody = response.string()
-            val jsonObject = JSONObject(responseBody)
-            val errorCode = jsonObject.getInt("errorCode")
-            if (errorCode == 0) {
-                Result.success(true)
-            } else {
-                Result.failure(Exception("Error code: $errorCode"))
-            }
+            RetrofitClient.accountApi.login(username, password).parseJsonElement<Int>("errorCode")
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-
-    suspend fun logout(): Result<Boolean> {
+    suspend fun logout(): Result<Int> {
         return try {
-            val response = RetrofitClient.accountApi.logout()
-            val responseBody = response.string()
-            val jsonObject = JSONObject(responseBody)
-            val errorCode = jsonObject.getInt("errorCode")
-            if (errorCode == 0) {
-                Result.success(true)
-            } else {
-                Result.failure(Exception("Error code: $errorCode"))
-            }
+            RetrofitClient.accountApi.logout().parseJsonElement<Int>("errorCode")
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -51,38 +31,67 @@ class AccountApiImpl {
         username: String,
         password: String,
         rePassword: String
-    ): Result<Boolean> {
+    ): Result<Int> {
         return try {
-            val response = RetrofitClient.accountApi.register(username, password, rePassword)
-            val responseBody = response.string()
-            val jsonObject = JSONObject(responseBody)
-            val errorCode = jsonObject.getInt("errorCode")
-            if (errorCode == 0) {
-                Result.success(true)
-            } else {
-                Result.failure(Exception("Error code: $errorCode"))
-            }
+            RetrofitClient.accountApi.register(username, password, rePassword)
+                .parseJsonElement<Int>("errorCode")
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    private val json = Json { ignoreUnknownKeys = true }
-
-    suspend fun getUserInfo(): Result<UserInfoBean> {
+    suspend fun getUserInfo(): Result<UserInfoData> {
         return try {
-            val response = RetrofitClient.accountApi.userInfo()
-            val responseBody = response.string()
-            val jsonElement = json.parseToJsonElement(responseBody).jsonObject
-            val errorCode = jsonElement["errorCode"]?.jsonPrimitive?.int ?: -1
-            if (errorCode == 0) {
-                val dataJson = jsonElement["data"]?.jsonObject ?: error("Missing data field")
-                val userInfo = json.decodeFromJsonElement<UserInfoBean>(dataJson)
-                Result.success(userInfo)
-            } else {
-                Result.failure(Exception("Error code: $errorCode"))
-            }
+            RetrofitClient.accountApi.userInfo().parseJsonData<UserInfoData>()
         } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getUnreadQuantity(): Result<Int> {
+        return try {
+            RetrofitClient.accountApi.getUnreadQuantity().parseUnreadQuantity<Int>("data")
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getRead(page: Int): Result<List<MessageData>> {
+        return try {
+            RetrofitClient.accountApi.getRead(page).parseJsonDatasList()
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getUnread(page: Int): Result<List<MessageData>> {
+        return try {
+            RetrofitClient.accountApi.getUnread(page).parseJsonDatasList()
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getCoinList(page: Int):Result<List<CoinCountData>>{
+        return try {
+            RetrofitClient.accountApi.getCoinList(page).parseJsonDatasList()
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getRank():Result<List<CoinInfoData>>{
+        return try {
+            RetrofitClient.accountApi.getRank().parseJsonDatasList()
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getCoinInfo():Result<CoinInfoData>{
+        return try {
+            RetrofitClient.accountApi.coinInfo().parseJsonData()
+        }catch (e:Exception){
             Result.failure(e)
         }
     }

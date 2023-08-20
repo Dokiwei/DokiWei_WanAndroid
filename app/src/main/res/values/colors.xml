@@ -4,4 +4,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="like">#b22254</color>
     <color name="onLike">#ffffff</color>
+
+    <color name="button">#eeeeee</color>
 </resources>

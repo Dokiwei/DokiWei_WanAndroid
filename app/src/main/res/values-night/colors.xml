@@ -2,4 +2,6 @@
 <resources>
     <color name="like">#ffb1c1</color>
     <color name="onLike">#670025</color>
+
+    <color name="button">#000000</color>
 </resources>

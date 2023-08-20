@@ -2,33 +2,67 @@
 agp = "8.2.0-alpha14"
 kotlin = "1.8.10"
 core-ktx = "1.10.1"
+ksp = "1.8.10-1.0.9"
+
 junit = "4.13.2"
 androidx-test-ext-junit = "1.1.5"
 espresso-core = "3.5.1"
 lifecycle-runtime-ktx = "2.6.1"
 activity-compose = "1.7.2"
 compose-bom = "2023.05.01"
-accompanist-navigation-animation = "0.31.5-beta"
+material = "1.4.3"
+
 ok-http3 = "5.0.0-alpha.11"
 retrofit2 = "2.9.0"
 coil = "2.4.0"
-kotlinx-serialization-json = "1.5.1"
 persistentCookieJar = "1.0.1"
-accompanist-webview = "0.31.5-beta"
-accompanist-swiperefresh = "0.31.5-beta"
-material = "1.4.3"
+
+kotlinx-serialization-json = "1.5.1"
+gson = "2.10.1"
+
+accompanist = "0.31.5-beta"
+
+
+hilt = "2.47"
+hilt-navigation = "1.1.0-alpha01"
+paging-version = "3.2.0"
+paging-compose-version = "3.2.0"
+room_version = "2.5.1"
+
 
 [libraries]
-accompanist-webview = { group = "com.google.accompanist", name = "accompanist-webview", version.ref = "accompanist-webview" }
-accompanist-swiperefresh = { group = "com.google.accompanist", name = "accompanist-swiperefresh", version.ref = "accompanist-swiperefresh" }
-accompanist-navigation-animation = { group = "com.google.accompanist", name = "accompanist-navigation-animation", version.ref = "accompanist-navigation-animation" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+#Room
+room-core = { module = "androidx.room:room-runtime", version.ref = "room_version" }#核心
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room_version" }#注解
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room_version" }#kotlin协程扩展
+room-paging = { module = "androidx.room:room-paging", version.ref = "room_version" }#paging支持
 
+#paging
+paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "paging-version" }
+paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging-compose-version" }
+
+#hilt
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }#core
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }#注解
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation" }#compse支持
+
+#accompanist组件
+accompanist-webview = { group = "com.google.accompanist", name = "accompanist-webview", version.ref = "accompanist" }
+accompanist-swiperefresh = { group = "com.google.accompanist", name = "accompanist-swiperefresh", version.ref = "accompanist" }
+accompanist-navigation-animation = { group = "com.google.accompanist", name = "accompanist-navigation-animation", version.ref = "accompanist" }
+
+#kotlin提供的序列化
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 
+#cookie持久化
 persistentCookieJar = { group = "com.github.franmontiel", name = "PersistentCookieJar", version.ref = "persistentCookieJar" }
 
+#图片加载
 coil = { group = "io.coil-kt", name = "coil", version.ref = "coil" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+
+#网络层
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit2" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "ok-http3" }
 okhttp-urlconnection = { group = "com.squareup.okhttp3", name = "okhttp-urlconnection", version.ref = "ok-http3" }
@@ -54,6 +88,9 @@ material3 = { group = "androidx.compose.material3", name = "material3" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinxSerializationJson = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 
 [bundles]
 

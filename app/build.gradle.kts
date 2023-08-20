@@ -3,16 +3,19 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.kotlinxSerializationJson)
+    alias(libs.plugins.kapt)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
     namespace = "com.dokiwei.wanandroid"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.dokiwei.wanandroid"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -31,11 +34,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -49,14 +52,25 @@ android {
         }
     }
 }
-
+kapt {
+    correctErrorTypes = true
+}
 dependencies {
+    implementation(libs.gson)
+    //room
+    implementation(libs.room.core)
+    implementation(libs.room.paging)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+    //paging
+    implementation(libs.paging.runtime)
+    implementation(libs.paging.compose)
+    //hilt
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    kapt(libs.hilt.compiler)
     //json序列化
     implementation(libs.kotlinx.serialization.json)
-    //webView
-    implementation(libs.accompanist.webview)
-    //下拉刷新
-    implementation(libs.accompanist.swiperefresh)
     //cookie持久化
     implementation(libs.persistentCookieJar)
     //coil加载图片
@@ -66,6 +80,10 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.okhttp)
     implementation(libs.okhttp.urlconnection)
+    //webView
+    implementation(libs.accompanist.webview)
+    //下拉刷新
+    implementation(libs.accompanist.swiperefresh)
     //带动画的navigation
     implementation(libs.accompanist.navigation.animation)
     //Compose

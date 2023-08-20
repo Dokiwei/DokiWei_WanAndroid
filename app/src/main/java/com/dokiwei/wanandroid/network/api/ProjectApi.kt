@@ -1,5 +1,6 @@
 package com.dokiwei.wanandroid.network.api
 
+import com.dokiwei.wanandroid.model.util.Constants
 import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -18,7 +19,8 @@ interface ProjectApi {
     @GET("project/list/{page}/json")
     suspend fun getProjectList(
         @Path("page") page: Int,
-        @Query("cid") id: Int
+        @Query("cid") id: Int,
+        @Query("page_size") pageSize: Int= Constants.API_PAGE_SIZE
     ): ResponseBody
 
     /**
