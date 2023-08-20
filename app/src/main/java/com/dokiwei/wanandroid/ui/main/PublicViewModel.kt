@@ -72,8 +72,8 @@ class PublicViewModel(application: Application) : AndroidViewModel(application =
                 }
             }
             result.exceptionOrNull()?.let {
-                ToastAndLogcatUtil.showMsg(
-                    "收藏失败:${
+                ToastAndLogcatUtil.log(
+                    msg = "收藏失败:${
                         result.exceptionOrNull().toString()
                     }"
                 )
@@ -92,8 +92,8 @@ class PublicViewModel(application: Application) : AndroidViewModel(application =
                 }
             }
             result.exceptionOrNull()?.let {
-                ToastAndLogcatUtil.showMsg(
-                    "取消收藏失败:${
+                ToastAndLogcatUtil.log(
+                    msg = "取消收藏失败:${
                         result.exceptionOrNull().toString()
                     }"
                 )
