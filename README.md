@@ -21,7 +21,7 @@
 
 在架构模式上使用了MVI架构, 并且严格遵循Google推荐的数据管理方式, 即唯一可信数据源, 单向数据流
 
-UI完全由用 Jectpack Compose 以声明式编程的方式构建, Jetpack Compose 是 Android 推荐的用于构建本机 UI 的现代工具包。它简化并加速了 Android 上的 UI 开发。通过更少的代码、强大的工具和直观的 Kotlin API，快速使您的应用栩栩如生。Jectpack Compose 可以大幅提升界面的复用性, 在嵌套布局中几乎不会消耗性能,但是要注意的是, Compose 组件会多次重组, 所以请不要将不必要的数据传入或写进组件内, 如果实在需要请使用`remember`来避免不必要的重复赋值。Jectpack Compose 可以完美的契合 Kotlin 的 Flow 数据流,省去了其他繁琐的数据状态观察方式
+UI完全由用 Jetpack Compose 以声明式编程的方式构建, Jetpack Compose 是 Android 推荐的用于构建本机 UI 的现代工具包。它简化并加速了 Android 上的 UI 开发。通过更少的代码、强大的工具和直观的 Kotlin API，快速使您的应用栩栩如生。Jetpack Compose 可以大幅提升界面的复用性, 在嵌套布局中几乎不会消耗性能,但是要注意的是, Compose 组件会多次重组, 所以请不要将不必要的数据传入或写进组件内, 如果实在需要请使用`remember`来避免不必要的重复赋值。Jetpack Compose 可以完美的契合 Kotlin 的 Flow 数据流,省去了其他繁琐的数据状态观察方式
 
 网络请求框架使用Retrofit2, 此框架可以快速方便的构建网络请求
 
