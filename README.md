@@ -222,6 +222,9 @@ abstract class BaseRemoteMediator<T : Any, R : Any, E : Any>(
 
 此段关于MVI架构的解释部分引用自掘金用户:程序员江同学的[MVVM 进阶版：MVI 架构了解一下~](https://juejin.cn/post/7022624191723601928)
 
+## 鸣谢
+鸿洋大佬的[WanAndroid](https://www.wanandroid.com/)提供的开放Api
+
 <!-- MARKDOWN LINKS & IMAGES -->
 [Dokiwei]:https://img.shields.io/badge/Github-DokiWei-blue.svg?style=flat&logo=github&logoColor=#181717
 [Dokiwei-Url]:https://github.com/Dokiwei
