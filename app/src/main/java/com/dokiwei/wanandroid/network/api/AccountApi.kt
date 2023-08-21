@@ -100,5 +100,11 @@ interface AccountApi {
      * 获取当前积分排行
      */
     @GET("coin/rank/1/json")
-    suspend fun getRank():ResponseBody
+    suspend fun getRank(): ResponseBody
+
+    @GET("user/{userId}/share_articles/{page}/json")
+    suspend fun getUserArticles(
+        @Path("page") page: Int,
+        @Path("userId") userId: Int
+    ): ResponseBody
 }

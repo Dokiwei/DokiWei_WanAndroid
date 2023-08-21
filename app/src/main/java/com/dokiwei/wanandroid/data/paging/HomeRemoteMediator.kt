@@ -87,7 +87,8 @@ class HomeRemoteMediator @Inject constructor(
             collect = data.collect,
             link = data.link,
             fresh = data.fresh,
-            tags = data.tags
+            tags = data.tags,
+            userId = data.userId
         )
     }
 

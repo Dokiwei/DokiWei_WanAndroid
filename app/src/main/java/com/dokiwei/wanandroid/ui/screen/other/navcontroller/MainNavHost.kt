@@ -72,6 +72,7 @@ import com.dokiwei.wanandroid.ui.screen.account.register.RegisterScreen
 import com.dokiwei.wanandroid.ui.screen.home.HomeScreen
 import com.dokiwei.wanandroid.ui.screen.home.search.SearchScreen
 import com.dokiwei.wanandroid.ui.screen.navigation.TreeScreen
+import com.dokiwei.wanandroid.ui.screen.other.sharearticles.ShareArticlesScreen
 import com.dokiwei.wanandroid.ui.screen.other.startscreen.StartScreen
 import com.dokiwei.wanandroid.ui.screen.other.webview.WebViewScreen
 import com.dokiwei.wanandroid.ui.screen.project.ProjectScreen
@@ -115,95 +116,83 @@ fun MainNavHost() {
     LaunchedEffect(Unit) {
         vmP.dispatch(PublicIntent.AlwaysGetUnreadQuantity)
     }
-    Scaffold(
-        bottomBar = {
-            val items = Constants.mainRoute
-            AnimatedVisibility(
-                visible = showBottomBar,
-                enter = slideInVertically {
-                    it
-                },
-                exit = slideOutVertically {
-                    it
-                }
-            ) {
-                Box {
-                    NavigationBar {
-                        items.forEachIndexed { index, item ->
-                            var iconSize by remember {
-                                mutableStateOf(24.dp)
-                            }
-                            val iconAnimSize by animateDpAsState(
-                                targetValue = iconSize, label = "", animationSpec = spring(
-                                    Spring.DampingRatioHighBouncy
-                                )
-                            )
-                            iconSize = if (selectedIndex == index)
-                                30.dp
-                            else
-                                24.dp
-                            NavigationBarItem(
-                                icon = {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        if (index == 3 && notificationNum > 0) {
-                                            BadgedBox(badge = {
-                                                Badge {
-                                                    Text(
-                                                        notificationNum.toString(),
-                                                        modifier = Modifier.semantics {
-                                                            contentDescription =
-                                                                "${notificationNum}条新消息"
-                                                        }
-                                                    )
-                                                }
-                                            }) {
-                                                Icon(
-                                                    imageVector = Icons.Rounded.Person,
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(iconAnimSize),
-                                                    tint = if (selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                                                )
-                                            }
-                                        } else {
-                                            Icon(
-                                                imageVector = when (index) {
-                                                    0 -> Icons.Rounded.Home
-                                                    1 -> ImageVector.vectorResource(
-                                                        R.drawable.ic_project
-                                                    )
-
-                                                    2 -> ImageVector.vectorResource(
-                                                        R.drawable.ic_tree
-                                                    )
-
-                                                    else -> Icons.Rounded.Person
-                                                },
-                                                contentDescription = null,
-                                                modifier = Modifier.size(iconAnimSize),
-                                                tint = if (selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                                            )
-                                        }
-                                    }
-                                },
-                                label = {
-                                    Text(
-                                        text = item,
-                                        textAlign = TextAlign.Center,
-                                    )
-                                },
-                                alwaysShowLabel = false,
-                                selected = selectedIndex == index,
-                                onClick = {
-                                    selectedIndex = index
-                                    navController.myCustomNavigate(item)
-                                }
-                            )
+    Scaffold(bottomBar = {
+        val items = Constants.mainRoute
+        AnimatedVisibility(visible = showBottomBar, enter = slideInVertically {
+            it
+        }, exit = slideOutVertically {
+            it
+        }) {
+            Box {
+                NavigationBar {
+                    items.forEachIndexed { index, item ->
+                        var iconSize by remember {
+                            mutableStateOf(24.dp)
                         }
+                        val iconAnimSize by animateDpAsState(
+                            targetValue = iconSize, label = "", animationSpec = spring(
+                                Spring.DampingRatioHighBouncy
+                            )
+                        )
+                        iconSize = if (selectedIndex == index) 30.dp
+                        else 24.dp
+                        NavigationBarItem(icon = {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                if (index == 3 && notificationNum > 0) {
+                                    BadgedBox(badge = {
+                                        Badge {
+                                            Text(notificationNum.toString(),
+                                                modifier = Modifier.semantics {
+                                                    contentDescription =
+                                                        "${notificationNum}条新消息"
+                                                })
+                                        }
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.Person,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(iconAnimSize),
+                                            tint = if (selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                        )
+                                    }
+                                } else {
+                                    Icon(
+                                        imageVector = when (index) {
+                                            0 -> Icons.Rounded.Home
+                                            1 -> ImageVector.vectorResource(
+                                                R.drawable.ic_project
+                                            )
+
+                                            2 -> ImageVector.vectorResource(
+                                                R.drawable.ic_tree
+                                            )
+
+                                            else -> Icons.Rounded.Person
+                                        },
+                                        contentDescription = null,
+                                        modifier = Modifier.size(iconAnimSize),
+                                        tint = if (selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                                    )
+                                }
+                            }
+                        },
+                            label = {
+                                Text(
+                                    text = item,
+                                    textAlign = TextAlign.Center,
+                                )
+                            },
+                            alwaysShowLabel = false,
+                            selected = selectedIndex == index,
+                            onClick = {
+                                selectedIndex = index
+                                navController.myCustomNavigate(item)
+                            })
                     }
                 }
             }
         }
-    ) {
+    }) {
         NavHost(
             navController = navController,
             startDestination = OtherScreen.Start.route,
@@ -241,7 +230,9 @@ fun MainNavHost() {
                 }
             }
             //Account
-            navigation(startDestination = AccountScreen.Account.route, route = AccountScreen.Main.route){
+            navigation(
+                startDestination = AccountScreen.Account.route, route = AccountScreen.Main.route
+            ) {
                 composable(
                     route = AccountScreen.Account.route,
                     enterTransition = ScreenAnim.enterScreenAnim(),
@@ -307,7 +298,9 @@ fun MainNavHost() {
                 }
             }
             //Project
-            navigation(startDestination = ProjectScreen.Project.route, route = ProjectScreen.Main.route){
+            navigation(
+                startDestination = ProjectScreen.Project.route, route = ProjectScreen.Main.route
+            ) {
                 composable(
                     route = ProjectScreen.Project.route,
                     enterTransition = ScreenAnim.enterScreenAnim(),
@@ -319,7 +312,9 @@ fun MainNavHost() {
                 }
             }
             //Navigation
-            navigation(startDestination = NavigationScreen.Tree.route, route = NavigationScreen.Main.route){
+            navigation(
+                startDestination = NavigationScreen.Tree.route, route = NavigationScreen.Main.route
+            ) {
                 composable(
                     route = NavigationScreen.Tree.route,
                     enterTransition = ScreenAnim.enterScreenAnim(),
@@ -342,13 +337,33 @@ fun MainNavHost() {
                     WebViewScreen(string, navController)
                 }
             }
+            composable(
+                route = "${OtherScreen.UserArticles.route}/{userId}/{username}",
+                enterTransition = ScreenAnim.enterScreenAnim(),
+                exitTransition = ScreenAnim.exitScreenAnim(),
+                popEnterTransition = ScreenAnim.popEnterScreenAnim(),
+                popExitTransition = ScreenAnim.popExitScreenAnim(),
+                arguments = listOf(
+                    navArgument("userId") { type = NavType.IntType },
+                    navArgument("username") { type = NavType.StringType },
+                )
+            ) { navBackStackEntry ->
+                navBackStackEntry.arguments?.let { bundle ->
+                    val userId = bundle.getInt("userId")
+                    val username = bundle.getString("username")
+                    username?.let { ShareArticlesScreen(navController, userId, username) }
+                }
+            }
         }
 
         AnimatedVisibility(visible = showLoginTip) {
-            AlertDialog(
-                icon = {
-                    Icon(imageVector = Icons.Default.Warning, contentDescription = "警告:未登录", tint = Color.Red)
-                },
+            AlertDialog(icon = {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = "警告:未登录",
+                    tint = Color.Red
+                )
+            },
                 onDismissRequest = { MyApplication.isShowLoginTip.value = false },
                 confirmButton = {
                     TextButton(onClick = {
@@ -364,12 +379,15 @@ fun MainNavHost() {
                     }
                 },
                 title = { Text(text = "提示") },
-                text = { Text(text =
-                """
+                text = {
+                    Text(
+                        text = """
                     |您需要登录才可以进行此操作😢
                     |您也可以选择取消,但您之后类似的操作仍会收到此提示😢
                     |所以建议您登录以得到完整的体验😊
-                """.trimMargin()) })
+                """.trimMargin()
+                    )
+                })
         }
 
     }

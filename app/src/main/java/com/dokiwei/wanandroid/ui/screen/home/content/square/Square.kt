@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -74,8 +75,7 @@ fun SquareContent(
 
         is LoadState.Error -> (data.loadState.refresh as LoadState.Error).error.message?.let {
             ToastAndLogcatUtil.log(
-                "SquarePaging",
-                msg = it
+                "SquarePaging", msg = it
             )
         }
 
@@ -101,85 +101,88 @@ private fun SquareItem(
             val painterID = remember { randomAvatar() }
             val item = data[index] ?: return@items
             var like by mutableStateOf(item.collect)
-            CardContent(
-                onClick = {
-                    val link = URLEncoder.encode(item.link, "UTF-8")
-                    navController.myCustomNavigate("${OtherScreen.WebView.route}/$link")
-                }
-            ) {
-                ListItem(
-                    leadingContent = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CardContent(onClick = {
+                val link = URLEncoder.encode(item.link, "UTF-8")
+                navController.myCustomNavigate("${OtherScreen.WebView.route}/$link")
+            }) {
+                ListItem(leadingContent = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = {
+                            navController.navigate(
+                                "${OtherScreen.UserArticles.route}/${item.userId}/${
+                                    TextUtil.getAuthor(
+                                        item.author, item.shareUser
+                                    )
+                                }"
+                            )
+                        }) {
                             Image(
                                 painter = painterResource(painterID), contentDescription = null
                             )
-                            Text(
-                                text = TextUtil.getArticleText(
-                                    item.author, item.shareUser
-                                )
-                            )
                         }
-                    }, headlineContent = {
                         Text(
-                            text = item.title, maxLines = 2, overflow = TextOverflow.Ellipsis
+                            text = TextUtil.getAuthorOrShareUser(
+                                item.author, item.shareUser
+                            )
                         )
-                    }, overlineContent = {
-                        Row {
-                            if (item.fresh) {
-                                Text(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(5.dp))
-                                        .background(MaterialTheme.colorScheme.secondary)
-                                        .padding(4.dp, 2.dp),
-                                    text = "新",
-                                    color = MaterialTheme.colorScheme.onSecondary
-                                )
-                                Box(modifier = Modifier.width(10.dp))
-                            }
-                            item.tags.forEach {
-                                Text(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(5.dp))
-                                        .background(MaterialTheme.colorScheme.tertiary)
-                                        .padding(4.dp, 2.dp)
-                                        .clickable {
-                                            val link = URLEncoder.encode(
-                                                "https://wanandroid.com/${it.url}", "UTF-8"
-                                            )
-                                            navController.myCustomNavigate("${OtherScreen.WebView.route}/$link")
-                                        },
-                                    text = it.name,
-                                    color = MaterialTheme.colorScheme.onTertiary
-                                )
-                                Box(modifier = Modifier.width(10.dp))
-                            }
+                    }
+                }, headlineContent = {
+                    Text(
+                        text = item.title, maxLines = 2, overflow = TextOverflow.Ellipsis
+                    )
+                }, overlineContent = {
+                    Row {
+                        if (item.fresh) {
                             Text(
-                                text = item.superChapterName + "/" + item.chapterName,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(5.dp))
+                                    .background(MaterialTheme.colorScheme.secondary)
+                                    .padding(4.dp, 2.dp),
+                                text = "新",
+                                color = MaterialTheme.colorScheme.onSecondary
                             )
+                            Box(modifier = Modifier.width(10.dp))
                         }
-                    },
-                    trailingContent = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        item.tags.forEach {
                             Text(
-                                text =
-                                if (TimeDiffString.isDateString(item.niceDate))
-                                    TimeDiffString.getTimeDiffString(item.niceDate)
-                                else
-                                    item.niceDate
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(5.dp))
+                                    .background(MaterialTheme.colorScheme.tertiary)
+                                    .padding(4.dp, 2.dp)
+                                    .clickable {
+                                        val link = URLEncoder.encode(
+                                            "https://wanandroid.com/${it.url}", "UTF-8"
+                                        )
+                                        navController.myCustomNavigate("${OtherScreen.WebView.route}/$link")
+                                    },
+                                text = it.name,
+                                color = MaterialTheme.colorScheme.onTertiary
                             )
-                            LikeIcon(
-                                size = 30.dp,
-                                liked = like
-                            ) {
-                                if (like) vmP.dispatch(PublicIntent.UnCollect(item.id))
-                                else vmP.dispatch(PublicIntent.Collect(item.id))
-                                like = !like
-                            }
+                            Box(modifier = Modifier.width(10.dp))
+                        }
+                        Text(
+                            text = item.superChapterName + "/" + item.chapterName,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }, trailingContent = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = if (TimeDiffString.isDateString(item.niceDate)) TimeDiffString.getTimeDiffString(
+                                item.niceDate
+                            )
+                            else item.niceDate
+                        )
+                        LikeIcon(
+                            size = 30.dp, liked = like
+                        ) {
+                            if (like) vmP.dispatch(PublicIntent.UnCollect(item.id))
+                            else vmP.dispatch(PublicIntent.Collect(item.id))
+                            like = !like
                         }
                     }
-                )
+                })
             }
 
         }

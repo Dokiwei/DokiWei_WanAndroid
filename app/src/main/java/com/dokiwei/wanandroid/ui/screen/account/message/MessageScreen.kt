@@ -27,11 +27,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.dokiwei.wanandroid.model.apidata.MessageData
+import com.dokiwei.wanandroid.model.util.OtherScreen
 import com.dokiwei.wanandroid.model.util.TimeDiffString
 import com.dokiwei.wanandroid.model.util.myCustomNavigate
-import com.dokiwei.wanandroid.model.util.publicViewModel
 import com.dokiwei.wanandroid.model.util.randomAvatar
-import com.dokiwei.wanandroid.ui.main.PublicIntent
 import com.dokiwei.wanandroid.ui.widgets.CardContent
 import com.dokiwei.wanandroid.ui.widgets.MyScrollableTabRow
 import java.net.URLEncoder
@@ -44,7 +43,6 @@ import java.net.URLEncoder
 @Composable
 fun MessageScreen(navController: NavController) {
     val vm: MessageViewModel = viewModel()
-    val vmP = publicViewModel()
     val state = vm.state.collectAsState()
     Scaffold(
         topBar = {
@@ -56,7 +54,6 @@ fun MessageScreen(navController: NavController) {
                     })
             }, navigationIcon = {
                 IconButton(onClick = {
-                    vmP.dispatch(PublicIntent.GetUnreadQuantity)
                     navController.navigateUp()
                 }) {
                     Icon(
@@ -128,15 +125,20 @@ private fun Item(
         navController.myCustomNavigate("网页/$link")
     }) {
         val painterID = remember { randomAvatar() }
-        ListItem(
-            leadingContent = {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        ListItem(leadingContent = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                IconButton(onClick = {
+                    navController.navigate(
+                        "${OtherScreen.UserArticles.route}/${item.fromUserId}/${if (item.fromUser == "") "默认名称" else item.fromUser}"
+                    )
+                }) {
                     Image(
                         painter = painterResource(painterID), contentDescription = null
                     )
-                    Text(text = item.fromUser)
                 }
-            },
+                Text(text = item.fromUser)
+            }
+        },
             overlineContent = { Text(text = item.title) },
             headlineContent = { Text(text = item.message) },
             trailingContent = {

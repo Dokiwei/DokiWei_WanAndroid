@@ -12,16 +12,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.IconButton
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -39,20 +40,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.dokiwei.wanandroid.model.apidata.ArticleData
 import com.dokiwei.wanandroid.model.apidata.CollectData
-import com.dokiwei.wanandroid.model.apidata.ProjectData
 import com.dokiwei.wanandroid.model.util.OtherScreen
 import com.dokiwei.wanandroid.model.util.TextUtil
 import com.dokiwei.wanandroid.model.util.TimeDiffString
@@ -69,9 +65,7 @@ import java.net.URLEncoder
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SwipeLayout(
-    modifier: Modifier=Modifier,
-    onRefresh: () -> Unit,
-    content: @Composable () -> Unit
+    modifier: Modifier = Modifier, onRefresh: () -> Unit, content: @Composable () -> Unit
 ) {
     val refresh by remember { mutableStateOf(false) }
     val pullRefreshState = rememberPullRefreshState(refresh, {
@@ -80,10 +74,7 @@ fun SwipeLayout(
     Box(modifier = modifier.pullRefresh(pullRefreshState)) {
         content()
         PullRefreshIndicator(
-            refresh,
-            pullRefreshState,
-            Modifier.align(Alignment.TopCenter),
-            scale = true
+            refresh, pullRefreshState, Modifier.align(Alignment.TopCenter), scale = true
         )
     }
 }
@@ -112,9 +103,11 @@ fun SwipeHomeItemsLayout(
     isToTop: Boolean = false,
     heightLight: String = "",
     items: List<ArticleData>,
+    painterId: Int? = null,
     onRefresh: () -> Unit,
     onLoadMore: () -> Unit,
     onCollectClick: (ArticleData, Boolean) -> Unit,
+    noDataContent: @Composable (() -> Unit)? = null,
     headContent: @Composable (() -> Unit)? = null
 ) {
     val pullRefreshState = rememberPullRefreshState(isRefreshing, { onRefresh() })
@@ -130,13 +123,15 @@ fun SwipeHomeItemsLayout(
             modifier,
             lazyListState,
             headContent,
+            noDataContent,
             items,
             onLoadMore,
             navController,
             heightLight,
             heightLightList,
             onCollectClick,
-            isLoadingMore
+            isLoadingMore,
+            painterId
         )
 
         PullRefreshIndicator(
@@ -153,147 +148,146 @@ private fun HomeItems(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState,
     headContent: @Composable (() -> Unit)?,
+    noDataContent: @Composable (() -> Unit)? = null,
     items: List<ArticleData>,
     onLoadMore: () -> Unit,
     navController: NavController,
     heightLight: String,
     heightLightList: List<String>,
     onCollectClick: (ArticleData, Boolean) -> Unit,
-    isLoadingMore: Boolean
+    isLoadingMore: Boolean,
+    painterId: Int?
 ) {
     LazyColumn(state = lazyListState, modifier = modifier) {
-        item { headContent?.let { it() } }
+        headContent?.let { item { it.invoke() } }
         items(items.size) { index ->
-            val painterID = remember { randomAvatar() }
+            val painterID = painterId ?: remember { randomAvatar() }
             val item = items[index]
             var like by mutableStateOf(item.collect)
             LaunchedEffect(index) {
-                if (items.size - index == 1) onLoadMore()
+                if (items.size - index == 10) onLoadMore()
             }
 
-            CardContent(
-                onClick = {
-                    val link = URLEncoder.encode(item.link, "UTF-8")
-                    navController.myCustomNavigate("${OtherScreen.WebView.route}/$link")
-                }
-            ) {
-                ListItem(
-                    leadingContent = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CardContent(onClick = {
+                val link = URLEncoder.encode(item.link, "UTF-8")
+                navController.myCustomNavigate("${OtherScreen.WebView.route}/$link")
+            }) {
+                ListItem(leadingContent = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = {
+                            navController.navigate(
+                                "${OtherScreen.UserArticles.route}/${item.userId}/${
+                                    TextUtil.getAuthor(
+                                        item.author, item.shareUser
+                                    )
+                                }"
+                            )
+                        }) {
                             Image(
                                 painter = painterResource(painterID), contentDescription = null
                             )
-                            Text(
-                                text = TextUtil.getArticleText(
-                                    item.author, item.shareUser
-                                )
-                            )
                         }
-                    }, overlineContent = {
-                        Row {
-                            if (item.fresh) {
-                                Text(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(5.dp))
-                                        .background(MaterialTheme.colorScheme.secondary)
-                                        .padding(4.dp, 2.dp),
-                                    text = "新",
-                                    color = MaterialTheme.colorScheme.onSecondary
-                                )
-                                Box(modifier = Modifier.width(10.dp))
-                            }
-                            item.tags.forEach {
-                                Text(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(5.dp))
-                                        .background(MaterialTheme.colorScheme.tertiary)
-                                        .padding(4.dp, 2.dp)
-                                        .clickable {
-                                            val link = URLEncoder.encode(
-                                                "https://wanandroid.com/${it.url}", "UTF-8"
-                                            )
-                                            navController.myCustomNavigate("${OtherScreen.WebView.route}/$link")
-                                        },
-                                    text = it.name,
-                                    color = MaterialTheme.colorScheme.onTertiary
-                                )
-                                Box(modifier = Modifier.width(10.dp))
-                            }
-                            Text(
-                                text = item.superChapterName + "/" + item.chapterName,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+
+                        Text(
+                            text = TextUtil.getAuthorOrShareUser(
+                                item.author, item.shareUser
                             )
+                        )
+                    }
+                }, overlineContent = {
+                    Row {
+                        if (item.fresh) {
+                            Text(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(5.dp))
+                                    .background(MaterialTheme.colorScheme.secondary)
+                                    .padding(4.dp, 2.dp),
+                                text = "新",
+                                color = MaterialTheme.colorScheme.onSecondary
+                            )
+                            Box(modifier = Modifier.width(10.dp))
                         }
-                    },
-                    headlineContent = {
-                        if (heightLight.isNotEmpty()) {
-                            val text = Html.fromHtml(item.title).toString()
-                            val annotatedText = buildAnnotatedString {
-                                var index1 = 0
-                                heightLightList.forEach { heightLight ->
-                                    val startIndex = text.indexOf(heightLight, index1, true)
-                                    if (startIndex != -1) {
-                                        append(text.substring(index1, startIndex))
-                                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                                            append(
-                                                text.substring(
-                                                    startIndex,
-                                                    startIndex + heightLight.length
-                                                )
+                        item.tags.forEach {
+                            Text(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(5.dp))
+                                    .background(MaterialTheme.colorScheme.tertiary)
+                                    .padding(4.dp, 2.dp)
+                                    .clickable {
+                                        val link = URLEncoder.encode(
+                                            "https://wanandroid.com/${it.url}", "UTF-8"
+                                        )
+                                        navController.myCustomNavigate("${OtherScreen.WebView.route}/$link")
+                                    }, text = it.name, color = MaterialTheme.colorScheme.onTertiary
+                            )
+                            Box(modifier = Modifier.width(10.dp))
+                        }
+                        Text(
+                            text = item.superChapterName + "/" + item.chapterName,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }, headlineContent = {
+                    if (heightLight.isNotEmpty()) {
+                        val text = Html.fromHtml(item.title).toString()
+                        val annotatedText = buildAnnotatedString {
+                            var index1 = 0
+                            heightLightList.forEach { heightLight ->
+                                val startIndex = text.indexOf(heightLight, index1, true)
+                                if (startIndex != -1) {
+                                    append(text.substring(index1, startIndex))
+                                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                                        append(
+                                            text.substring(
+                                                startIndex, startIndex + heightLight.length
                                             )
-                                        }
-                                        index1 = startIndex + heightLight.length
+                                        )
                                     }
-                                }
-                                if (index1 < text.length) {
-                                    append(text.substring(index1))
+                                    index1 = startIndex + heightLight.length
                                 }
                             }
-                            Text(
-                                text = annotatedText,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        } else
-                            Text(
-                                text = item.title,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                    },
-                    trailingContent = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text =
-                                if (TimeDiffString.isDateString(item.niceDate))
-                                    TimeDiffString.getTimeDiffString(item.niceDate)
-                                else
-                                    item.niceDate
-                            )
-                            LikeIcon(
-                                size = 30.dp,
-                                liked = like
-                            ) {
-                                onCollectClick(item, like)
-                                like = !like
+                            if (index1 < text.length) {
+                                append(text.substring(index1))
                             }
+                        }
+                        Text(
+                            text = annotatedText, maxLines = 2, overflow = TextOverflow.Ellipsis
+                        )
+                    } else Text(
+                        text = item.title, maxLines = 2, overflow = TextOverflow.Ellipsis
+                    )
+                }, trailingContent = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = if (TimeDiffString.isDateString(item.niceDate)) TimeDiffString.getTimeDiffString(
+                                item.niceDate
+                            )
+                            else item.niceDate
+                        )
+                        LikeIcon(
+                            size = 30.dp, liked = like
+                        ) {
+                            onCollectClick(item, like)
+                            like = !like
                         }
                     }
-                )
+                })
             }
 
-        }
+            if (items.size - 1 == index) Spacer(modifier = Modifier.height(20.dp))
 
+        }
+        if (items.isEmpty()) item {
+            noDataContent?.invoke()
+            if (noDataContent == null) Text(text = "数据为空")
+        }
         item {
             AnimatedVisibility(
-                visible = isLoadingMore,
-                enter = scaleIn(),
-                exit = scaleOut()
+                visible = isLoadingMore, enter = scaleIn(), exit = scaleOut()
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -335,144 +329,6 @@ fun SwipeCollectsItemsLayout(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun SwipeProjectItemsLayout(
-    modifier: Modifier,
-    navController: NavController,
-    isRefreshing: Boolean,
-    isLoadingMore: Boolean,
-    isToTop: Boolean = false,
-    items: List<ProjectData>,
-    onRefresh: () -> Unit,
-    onLoadMore: () -> Unit,
-    onCollectClick: (ProjectData, Boolean) -> Unit
-) {
-    val pullRefreshState = rememberPullRefreshState(isRefreshing, { onRefresh() })
-    val coroutineScope = rememberCoroutineScope()
-    val lazyListState = rememberLazyListState()
-
-    LaunchedEffect(isToTop) {
-        coroutineScope.launch { lazyListState.animateScrollToItem(0) }
-    }
-    Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
-        ProjectItems(
-            modifier,
-            lazyListState,
-            items,
-            onLoadMore,
-            navController,
-            onCollectClick,
-            isLoadingMore
-        )
-
-        PullRefreshIndicator(
-            isRefreshing,
-            pullRefreshState,
-            Modifier.align(Alignment.TopCenter),
-        )
-    }
-}
-
-@SuppressLint("UnrememberedMutableState")
-@Composable
-private fun ProjectItems(
-    modifier: Modifier,
-    lazyListState: LazyListState,
-    items: List<ProjectData>,
-    onLoadMore: () -> Unit,
-    navController: NavController,
-    onCollectClick: (ProjectData, Boolean) -> Unit,
-    isLoadingMore: Boolean
-) {
-    LazyColumn(
-        modifier,
-        state = lazyListState
-    ) {
-        items(items.size) {
-            val project = items[it]
-            var like by mutableStateOf(project.collect)
-            LaunchedEffect(it) {
-                if (items.size - it == 1) onLoadMore()
-            }
-            CardContent(onClick = {
-                val link = URLEncoder.encode(project.link, "UTF-8")
-                navController.myCustomNavigate("${OtherScreen.WebView.route}/$link")
-            }) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                ) {
-                    AsyncImage(
-                        model = project.envelopePic,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(96.dp, 148.dp)
-                            .clip(
-                                RoundedCornerShape(20.dp)
-                            ),
-                        contentScale = ContentScale.Crop
-                    )
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        Column(
-                            Modifier
-                                .height(148.dp)
-                                .padding(horizontal = 5.dp),
-                            verticalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = project.title,
-                                fontSize = 16.sp,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                fontWeight = FontWeight.Bold,
-                            )
-                            Text(
-                                text = project.desc,
-                                fontSize = 14.sp,
-                                maxLines = 3,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = project.niceDate + "  " + project.author,
-                                fontSize = 12.sp,
-                            )
-                        }
-                        LikeIcon(
-                            modifier = Modifier.align(Alignment.BottomEnd),
-                            size = 30.dp,
-                            liked = like
-                        ) {
-                            onCollectClick(project, like)
-                            like = !like
-                        }
-                    }
-                }
-            }
-        }
-
-        item {
-            AnimatedVisibility(
-                visible = isLoadingMore,
-                enter = scaleIn(),
-                exit = scaleOut()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = "加载中...")
-                    CircularProgressIndicator()
-                }
-            }
-        }
-
-    }
-}
-
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -503,83 +359,73 @@ private fun CollectItems(
                 if (items.size - index == 1) onLoadMore()
             }
 
-            CardContent(
-                onClick = {
-                    val link = URLEncoder.encode(item.link, "UTF-8")
-                    navController.navigate("${OtherScreen.WebView.route}/$link")
-                }
-            ) {
-                ListItem(
-                    leadingContent = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CardContent(onClick = {
+                val link = URLEncoder.encode(item.link, "UTF-8")
+                navController.navigate("${OtherScreen.WebView.route}/$link")
+            }) {
+                ListItem(leadingContent = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = {}) {
                             Image(
                                 painter = painterResource(painterID), contentDescription = null
                             )
-                            Text(text = item.author,)
                         }
-                    },
-                    headlineContent = {
+                        Text(text = item.author)
+                    }
+                }, headlineContent = {
+                    Text(
+                        text = item.title, maxLines = 2, overflow = TextOverflow.Ellipsis
+                    )
+                }, overlineContent = {
+                    Row {
                         Text(
-                            text = item.title,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(5.dp))
+                                .background(MaterialTheme.colorScheme.tertiary)
+                                .padding(4.dp, 2.dp),
+                            text = if (item.originId == -1) "站外" else "站内",
+                            color = MaterialTheme.colorScheme.onTertiary
                         )
-                    },
-                    overlineContent = {
-                        Row {
+                        Box(modifier = Modifier.width(10.dp))
+                        if (item.desc.isNotEmpty()) {
                             Text(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(5.dp))
                                     .background(MaterialTheme.colorScheme.tertiary)
                                     .padding(4.dp, 2.dp),
-                                text = if (item.originId == -1) "站外" else "站内",
+                                text = if (item.envelopePic.isNotEmpty()) "项目" else "问答",
                                 color = MaterialTheme.colorScheme.onTertiary
                             )
                             Box(modifier = Modifier.width(10.dp))
-                            if (item.desc.isNotEmpty()) {
-                                Text(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(5.dp))
-                                        .background(MaterialTheme.colorScheme.tertiary)
-                                        .padding(4.dp, 2.dp),
-                                    text = if (item.envelopePic.isNotEmpty()) "项目" else "问答",
-                                    color = MaterialTheme.colorScheme.onTertiary
-                                )
-                                Box(modifier = Modifier.width(10.dp))
-                            }
-
-                        }
-                    },
-                    trailingContent = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = if (TimeDiffString.isDateString(item.niceDate)) TimeDiffString.getTimeDiffString(
-                                    item.niceDate
-                                ) else item.niceDate
-                            )
-                            LikeIcon(
-                                size = 30.dp,
-                                liked = like
-                            ) {
-                                onCollectClick(item, like)
-                                like = !like
-                            }
                         }
 
                     }
-                )
+                }, trailingContent = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = if (TimeDiffString.isDateString(item.niceDate)) TimeDiffString.getTimeDiffString(
+                                item.niceDate
+                            ) else item.niceDate
+                        )
+                        LikeIcon(
+                            size = 30.dp, liked = like
+                        ) {
+                            onCollectClick(item, like)
+                            like = !like
+                        }
+                    }
+
+                })
             }
+            if (items.size - 1 == index) Spacer(modifier = Modifier.height(20.dp))
         }
 
         item {
             AnimatedVisibility(
-                visible = isLoadingMore,
-                enter = scaleIn(),
-                exit = scaleOut()
+                visible = isLoadingMore, enter = scaleIn(), exit = scaleOut()
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {

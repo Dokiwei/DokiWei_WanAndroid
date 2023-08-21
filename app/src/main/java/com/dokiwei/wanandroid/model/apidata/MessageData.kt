@@ -15,4 +15,5 @@ data class MessageData(
     val niceDate: String,
     val tag: String,
     val title: String,
+    val fromUserId:Int
 )

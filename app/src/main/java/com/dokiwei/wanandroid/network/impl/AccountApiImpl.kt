@@ -3,6 +3,7 @@ package com.dokiwei.wanandroid.network.impl
 import com.dokiwei.wanandroid.model.apidata.CoinCountData
 import com.dokiwei.wanandroid.model.apidata.CoinInfoData
 import com.dokiwei.wanandroid.model.apidata.MessageData
+import com.dokiwei.wanandroid.model.apidata.UserArticleData
 import com.dokiwei.wanandroid.model.apidata.UserInfoData
 import com.dokiwei.wanandroid.network.client.RetrofitClient
 
@@ -91,6 +92,14 @@ class AccountApiImpl {
     suspend fun getCoinInfo():Result<CoinInfoData>{
         return try {
             RetrofitClient.accountApi.coinInfo().parseJsonData()
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getUserArticles(page:Int,userId:Int):Result<UserArticleData>{
+        return try {
+            RetrofitClient.accountApi.getUserArticles(page, userId).parseJsonDataAndArticles()
         }catch (e:Exception){
             Result.failure(e)
         }

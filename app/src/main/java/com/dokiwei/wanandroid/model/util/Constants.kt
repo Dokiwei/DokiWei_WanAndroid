@@ -66,4 +66,5 @@ sealed class AccountScreen(val route: String) {
 sealed class OtherScreen(val route: String) {
     object WebView : OtherScreen("网页")
     object Start: OtherScreen("启动")
+    object UserArticles: OtherScreen("作者详细")
 }

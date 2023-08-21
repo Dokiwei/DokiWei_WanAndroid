@@ -56,6 +56,7 @@ import com.dokiwei.wanandroid.model.util.AccountScreen
 import com.dokiwei.wanandroid.model.util.MyBlurTransformation
 import com.dokiwei.wanandroid.model.util.mainBody
 import com.dokiwei.wanandroid.model.util.publicViewModel
+import com.dokiwei.wanandroid.ui.main.PublicIntent
 import com.dokiwei.wanandroid.ui.widgets.SettingButton
 
 /**
@@ -169,7 +170,9 @@ fun PersonScreen(navController: NavController) {
                         }
                     }
                 }
-                IconButton(modifier = Modifier.align(Alignment.TopEnd), onClick = {navController.navigate(AccountScreen.Rank.route) }) {
+                IconButton(
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    onClick = { navController.navigate(AccountScreen.Rank.route) }) {
                     Icon(
                         imageVector = Icons.Default.Menu,
                         contentDescription = null
@@ -188,7 +191,10 @@ fun PersonScreen(navController: NavController) {
                         Text(text = "我的消息")
                     }
                 } else Text(text = "我的消息")
-            }) { navController.navigate(AccountScreen.Message.route) }
+            }) {
+                vmP.dispatch(PublicIntent.GetUnreadQuantity)
+                navController.navigate(AccountScreen.Message.route)
+            }
             Divider()
             SettingButton(imageVector = Icons.Default.Star, title = "我的积分", trailingContent = {
                 userInfoData?.let { Text(text = it.coinInfo.coinCount.toString()) }

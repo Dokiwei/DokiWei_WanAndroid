@@ -8,28 +8,25 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class UserInfoData(
-    val coinInfo: CoinInfoData,
-    val userInfo: UserInfo
+    val coinInfo: CoinInfoData, val userInfo: UserInfo
 )
 
 @Serializable
 data class CoinInfoData(
-    val rank: String,
-    val coinCount: Int,
-    val level: Int,
-    val username: String
+    val rank: String, val coinCount: Int, val level: Int, val username: String
 )
 
 @Serializable
 data class UserInfo(
-    val username: String,
-    val email: String,
-    val id: Int
+    val username: String, val email: String, val id: Int
 )
 
 @Serializable
 data class CoinCountData(
-    val coinCount: Int,
-    val reason:String,
-    val desc:String
-    )
+    val coinCount: Int, val reason: String, val desc: String
+)
+
+@Serializable
+data class UserArticleData(
+    val coinInfo: CoinInfoData, val shareArticles: List<ArticleData>
+)

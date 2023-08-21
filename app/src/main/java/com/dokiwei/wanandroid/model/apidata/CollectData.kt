@@ -15,5 +15,6 @@ data class CollectData(
     val desc: String,
     val envelopePic: String,
     val id: Int,
-    val originId: Int
+    val originId: Int,
+    val userId:Int
 )

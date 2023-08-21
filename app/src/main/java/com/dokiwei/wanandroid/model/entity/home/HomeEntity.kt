@@ -27,7 +27,8 @@ data class HomeEntity(
     val collect: Boolean,
     val link: String,
     val fresh: Boolean,
-    val tags: List<TagData>
+    val tags: List<TagData>,
+    val userId:Int
 )
 interface ItemData {
     val id: Int

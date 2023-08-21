@@ -1,5 +1,8 @@
 package com.dokiwei.wanandroid.network.impl
 
+import com.dokiwei.wanandroid.model.apidata.ArticleData
+import com.dokiwei.wanandroid.model.apidata.CoinInfoData
+import com.dokiwei.wanandroid.model.apidata.UserArticleData
 import com.dokiwei.wanandroid.model.util.ToastAndLogcatUtil
 import com.dokiwei.wanandroid.ui.main.MyApplication
 import kotlinx.serialization.json.Json
@@ -66,6 +69,28 @@ inline fun <reified T> ResponseBody.parseJsonData(): Result<T> {
             val dataJson = jsonElement["data"]?.jsonObject ?: error("Missing data field")
             val data = json.decodeFromJsonElement<T>(dataJson)
             Result.success(data)
+        } else {
+            val errorMsg = jsonElement["errorMsg"]?.jsonPrimitive?.content ?: "获取错误信息失败"
+            errorResultToLog(errorCode,errorMsg)
+            Result.failure(Exception("Error code: $errorCode \nError Msg: $errorMsg"))
+        }
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+}
+
+fun ResponseBody.parseJsonDataAndArticles(): Result<UserArticleData> {
+    val json = Json { ignoreUnknownKeys = true }
+    return try {
+        val responseBody = this.string()
+        val jsonElement = json.parseToJsonElement(responseBody).jsonObject
+        val errorCode = jsonElement["errorCode"]?.jsonPrimitive?.int ?: -1
+        if (errorCode == 0) {
+            val coinInfoJson = jsonElement["data"]?.jsonObject?.get("coinInfo")?.jsonObject ?: error("Missing data field")
+            val shareArticlesJson = jsonElement["data"]?.jsonObject?.get("shareArticles")?.jsonObject?.get("datas")?.jsonArray?: error("Missing data field")
+            val coinInfo = json.decodeFromJsonElement<CoinInfoData>(coinInfoJson)
+            val shareArticles = json.decodeFromJsonElement<List<ArticleData>>(shareArticlesJson)
+            Result.success(UserArticleData(coinInfo,shareArticles))
         } else {
             val errorMsg = jsonElement["errorMsg"]?.jsonPrimitive?.content ?: "获取错误信息失败"
             errorResultToLog(errorCode,errorMsg)

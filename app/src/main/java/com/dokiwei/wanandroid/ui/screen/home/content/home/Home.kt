@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -132,11 +133,22 @@ private fun HomeItem(
             }) {
                 ListItem(leadingContent = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Image(
-                            painter = painterResource(painterID), contentDescription = null
-                        )
+                        IconButton(onClick = {
+                            navController.navigate(
+                                "${OtherScreen.UserArticles.route}/${item.userId}/${
+                                    TextUtil.getAuthor(
+                                        item.author, item.shareUser
+                                    )
+                                }"
+                            )
+                        }) {
+                            Image(
+                                painter = painterResource(painterID), contentDescription = null
+                            )
+                        }
+
                         Text(
-                            text = TextUtil.getArticleText(
+                            text = TextUtil.getAuthorOrShareUser(
                                 item.author, item.shareUser
                             )
                         )

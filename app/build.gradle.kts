@@ -80,12 +80,14 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.okhttp)
     implementation(libs.okhttp.urlconnection)
-    //webView
+    //accompanist
     implementation(libs.accompanist.webview)
-    //下拉刷新
     implementation(libs.accompanist.swiperefresh)
-    //带动画的navigation
     implementation(libs.accompanist.navigation.animation)
+    implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.accompanist.insets.ui)
+    implementation(libs.accompanist.insets)
     //Compose
     implementation(libs.activity.compose)
     implementation(platform(libs.compose.bom))
