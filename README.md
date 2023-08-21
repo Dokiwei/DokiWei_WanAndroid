@@ -1,7 +1,7 @@
 # DokiWei-WanAndroid
 
 <div align="center">
- 
+
 [![Github][Dokiwei]][Dokiwei-Url]
 
 </div>
@@ -43,6 +43,14 @@ UI完全由用 Jectpack Compose 以声明式编程的方式构建, Jetpack Compo
 * [![Paging][Paging]][Paging-Url]
 * [![Retrofit][Retrofit]][Retrofit-Url]
 ## 截图
+
+| 启动页 | 首页 | 项目 | 导航 | 账号 |
+| :----: | :--: | :--: | :--: | :--: |
+|![启动页][start]| ![首页][home] | ![项目][home] | ![导航][navigation] | ![账号][account] |
+
+|        启动页-深色         |        首页-深色        |         项目-深色          |           导航-深色           |         账号-深色          |
+| :------------------------: | :---------------------: | :------------------------: | :---------------------------: | :------------------------: |
+| ![启动页-深色][start-dark] | ![首页-深色][home-dark] | ![项目-深色][project-dark] | ![导航-深色][navigation-dark] | ![账号-深色][account-dark] |
 
 
 ## 详细
@@ -230,3 +238,13 @@ abstract class BaseRemoteMediator<T : Any, R : Any, E : Any>(
 [Retrofit]:https://img.shields.io/badge/Retrofit-2.9.0-000000?style=for-the-badge
 [Retrofit-url]: https://square.github.io/retrofit/
 
+[start]:/img/start.jpg "启动页"
+[start-dark]:/img/start_dark.jpg "启动页-深色"
+[home]:/img/home.jpg "首页"
+[home-dark]:/img/home_dark.jpg "首页-深色"
+[project]:/img/project.jpg "项目"
+[project-dark]:/img/project_dark.jpg "项目-深色"
+[navigation]:/img/navigation.jpg "导航"
+[navigation-dark]:/img/navigation_dark.jpg "导航-深色"
+[account]:/img/account.jpg "账号"
+[account-dark]:/img/account_dark.jpg "账号-深色"
