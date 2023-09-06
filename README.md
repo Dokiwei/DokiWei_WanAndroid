@@ -14,14 +14,15 @@
 * [截图](#截图)
 * [详细](#详细)
 * [关于架构模式](#关于架构模式)
+* [鸣谢](#鸣谢)
 
 ## 简介
 
 本软件完全遵循Material Design 3的设计规范, 并且在Android12+支持Dynamic colors
 
-在架构模式上使用了MVI架构, 并且严格遵循Google推荐的数据管理方式, 即唯一可信数据源, 单向数据流
+在架构模式上使用了MVI架构, 并且以个人的理解实现了Google推荐的数据管理方式, 即唯一可信数据源, 单向数据流
 
-UI完全由用 Jectpack Compose 以声明式编程的方式构建, Jetpack Compose 是 Android 推荐的用于构建本机 UI 的现代工具包。它简化并加速了 Android 上的 UI 开发。通过更少的代码、强大的工具和直观的 Kotlin API，快速使您的应用栩栩如生。Jectpack Compose 可以大幅提升界面的复用性, 在嵌套布局中几乎不会消耗性能,但是要注意的是, Compose 组件会多次重组, 所以请不要将不必要的数据传入或写进组件内, 如果实在需要请使用`remember`来避免不必要的重复赋值。Jectpack Compose 可以完美的契合 Kotlin 的 Flow 数据流,省去了其他繁琐的数据状态观察方式
+UI完全由用 Jetpack Compose 以声明式编程的方式构建, Jetpack Compose 是 Android 推荐的用于构建本机 UI 的现代工具包。它简化并加速了 Android 上的 UI 开发。通过更少的代码、强大的工具和直观的 Kotlin API，快速使您的应用栩栩如生。Jetpack Compose 可以大幅提升界面的复用性, 在嵌套布局中几乎不会消耗性能,但是要注意的是, Compose 组件会多次重组, 所以请不要将不必要的数据传入或写进组件内, 如果实在需要请使用`remember`来避免不必要的重复赋值。Jetpack Compose 可以完美的契合 Kotlin 的 Flow 数据流,省去了其他繁琐的数据状态观察方式
 
 网络请求框架使用Retrofit2, 此框架可以快速方便的构建网络请求
 
@@ -221,6 +222,9 @@ abstract class BaseRemoteMediator<T : Any, R : Any, E : Any>(
 2. `View`层通过`Action`更新`ViewState`，替代`MVVM`通过调用`ViewModel`方法交互的方式
 
 此段关于MVI架构的解释部分引用自掘金用户:程序员江同学的[MVVM 进阶版：MVI 架构了解一下~](https://juejin.cn/post/7022624191723601928)
+
+## 鸣谢
+鸿洋大佬的[WanAndroid](https://www.wanandroid.com/)提供的开放Api
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [Dokiwei]:https://img.shields.io/badge/Github-DokiWei-blue.svg?style=flat&logo=github&logoColor=#181717
