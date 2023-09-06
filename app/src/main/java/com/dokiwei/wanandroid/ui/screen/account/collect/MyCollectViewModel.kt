@@ -69,7 +69,7 @@ class MyCollectViewModel : ViewModel() {
 
             is MyCollectAction.ShowToast -> _state.value = _state.value.copy(msg = action.msg)
             is MyCollectAction.OutputLogcat -> ToastAndLogcatUtil.log(
-                "MyCollectAction", action.msg, 0
+                "MyCollectAction", action.msg
             )
 
             is MyCollectAction.UpdateScrollToTop -> _state.value =

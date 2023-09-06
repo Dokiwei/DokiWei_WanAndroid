@@ -10,7 +10,7 @@ import com.google.gson.reflect.TypeToken
  * @date 2023/8/9 15:28
  */
 // 定义一个类型转换器类，用于将 List<TagEntity> 转换为 String，或者反过来
-class TagConverter {
+class TagSerializableConverter {
     // 定义一个函数，用于将 List<TagEntity> 转换为 String
     // 这里我们使用 Gson 库来将对象序列化为 JSON 字符串
     // 您可以根据您的喜好选择其他方式

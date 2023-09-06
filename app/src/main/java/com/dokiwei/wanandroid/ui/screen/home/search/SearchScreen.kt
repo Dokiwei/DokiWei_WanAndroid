@@ -4,13 +4,13 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -44,11 +44,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.dokiwei.wanandroid.R
+import com.dokiwei.wanandroid.model.util.PagingState
 import com.dokiwei.wanandroid.model.util.mainBody
 import com.dokiwei.wanandroid.model.util.publicViewModel
-import com.dokiwei.wanandroid.ui.main.PublicIntent
-import com.dokiwei.wanandroid.ui.widgets.SwipeHomeItemsLayout
+import com.dokiwei.wanandroid.ui.widgets.Items
+import com.dokiwei.wanandroid.ui.widgets.SwipeLayout
 import kotlinx.coroutines.delay
 
 /**
@@ -60,28 +62,39 @@ import kotlinx.coroutines.delay
 fun SearchScreen(navController: NavController) {
     val vm: SearchViewModel = viewModel()
     val vmP = publicViewModel()
+
     val state by vm.state.collectAsState()
+    val data = state.data.collectAsLazyPagingItems()
+
+    data.PagingState(tag = "Search-Paging 加载状态:")
+    val lazyListState = rememberLazyListState()
+
     var searchKey by remember {
         mutableStateOf("")
     }
+    var scrollToTop by remember { mutableStateOf(false) }
     //返回监听
     BackHandler(onBack = {
         if (state.isShowResult) {
-            vm.dispatch(SearchIntent.RevertToTheDefaultShowResult)
+            vm.dispatch(SearchIntent.ChangeShowResult(false))
         } else {
             navController.navigateUp()
         }
     })
-    LaunchedEffect(state.scrollToTop) {
-        delay(500)
-        vm.dispatch(SearchIntent.UpdateScrollToTop(false))
+
+    LaunchedEffect(scrollToTop) {
+        if (scrollToTop) {
+            lazyListState.animateScrollToItem(0)
+            delay(500)
+            scrollToTop = false
+        }
     }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(navigationIcon = {
                 IconButton(onClick = {
                     if (state.isShowResult) {
-                        vm.dispatch(SearchIntent.RevertToTheDefaultShowResult)
+                        vm.dispatch(SearchIntent.ChangeShowResult(false))
                     } else {
                         navController.navigateUp()
                     }
@@ -110,8 +123,8 @@ fun SearchScreen(navController: NavController) {
                 )
             }, actions = {
                 IconButton(onClick = {
-                    vm.dispatch(SearchIntent.GetSearchResult(k = searchKey.trim()))
-                    vm.dispatch(SearchIntent.UpdateScrollToTop(true))
+                    vm.dispatch(SearchIntent.GetSearchResult(searchKey = searchKey.trim()))
+                    vm.dispatch(SearchIntent.ChangeShowResult(true))
                 }) {
                     Icon(
                         imageVector = Icons.Default.Search, contentDescription = "搜索图标"
@@ -124,7 +137,7 @@ fun SearchScreen(navController: NavController) {
                 SmallFloatingActionButton(
                     shape = FloatingActionButtonDefaults.largeShape,
                     onClick = {
-                        vm.dispatch(SearchIntent.UpdateScrollToTop(true))
+                        scrollToTop = true
                     }) {
                     Icon(
                         imageVector = Icons.Default.KeyboardArrowUp,
@@ -133,69 +146,65 @@ fun SearchScreen(navController: NavController) {
                 }
         }
     ) { innerPadding ->
-        AnimatedVisibility(
-            visible = !state.isShowResult,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Box(
-                Modifier
-                    .mainBody()
-                    .padding(innerPadding)
+        Box(modifier = Modifier.padding(innerPadding)) {
+
+            AnimatedVisibility(
+                visible = !state.isShowResult,
+                enter = fadeIn(),
+                exit = fadeOut()
             ) {
-                Column(
-                    Modifier.padding(10.dp)
+                Box(
+                    Modifier
+                        .mainBody()
                 ) {
-                    Text(
-                        modifier = Modifier.padding(start = 2.dp, bottom = 5.dp),
-                        text = "热门搜索",
-                        fontSize = 18.sp
-                    )
-                    FlowRow {
-                        state.hotKeys.forEach { hotKeyData ->
-                            TextButton(
-                                modifier = Modifier.padding(horizontal = 5.dp),
-                                onClick = {
-                                    searchKey = hotKeyData.name
-                                    vm.dispatch(SearchIntent.GetSearchResult(k = hotKeyData.name))
-                                    vm.dispatch(SearchIntent.UpdateScrollToTop(true))
-                                },
-                                colors = ButtonDefaults.textButtonColors(
-                                    containerColor = colorResource(id = R.color.button),
-                                    contentColor = MaterialTheme.colorScheme.onSurface
-                                )
-                            ) {
-                                Text(
-                                    text = hotKeyData.name
-                                )
+                    Column(
+                        Modifier.padding(10.dp)
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(start = 2.dp, bottom = 5.dp),
+                            text = "热门搜索",
+                            fontSize = 18.sp
+                        )
+                        FlowRow {
+                            state.hotKeys.forEach { hotKeyData ->
+                                TextButton(
+                                    modifier = Modifier.padding(horizontal = 5.dp),
+                                    onClick = {
+                                        searchKey = hotKeyData.name
+                                        vm.dispatch(SearchIntent.GetSearchResult(searchKey = hotKeyData.name))
+                                        vm.dispatch(SearchIntent.ChangeShowResult(true))
+                                    },
+                                    colors = ButtonDefaults.textButtonColors(
+                                        containerColor = colorResource(id = R.color.button),
+                                        contentColor = MaterialTheme.colorScheme.onSurface
+                                    )
+                                ) {
+                                    Text(
+                                        text = hotKeyData.name
+                                    )
+                                }
                             }
                         }
                     }
-                }
 
+                }
             }
-        }
-        AnimatedVisibility(
-            visible = state.isShowResult,
-            enter = slideInVertically() + fadeIn(),
-            exit = fadeOut()
-        ) {
-            SwipeHomeItemsLayout(
-                modifier = Modifier.padding(innerPadding),
-                navController = navController,
-                isRefreshing = state.isRefreshing,
-                isLoadingMore = state.isLoadingMore,
-                isToTop = state.scrollToTop,
-                items = state.searchResult,
-                heightLight = searchKey,
-                onRefresh = { vm.dispatch(SearchIntent.Refresh(searchKey.trim())) },
-                onLoadMore = { vm.dispatch(SearchIntent.LoadMore(searchKey.trim())) },
-                onCollectClick = { item, like ->
-                    if (like) vmP.dispatch(PublicIntent.UnCollect(item.id))
-                    else vmP.dispatch(PublicIntent.Collect(item.id))
+            AnimatedVisibility(
+                visible = state.isShowResult,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                SwipeLayout(onRefresh = { data.refresh() }) {
+                    Items(
+                        searchKey = searchKey,
+                        lazyListState = lazyListState,
+                        navController = navController,
+                        articleData = data,
+                        vmP = vmP
+                    )
                 }
-            )
-        }
+            }
 
+        }
     }
 }

@@ -26,45 +26,49 @@ object Constants {
     val mainRoute = listOf(Screen.Home.route, Screen.Project.route, Screen.Navigation.route, Screen.Account.route)
 }
 
+enum class LogLevel{
+    VERBOSE,DEBUG,INFO,WARN,ERROR
+}
+
 sealed class Screen(val route: String) {
-    object Home : Screen(HomeScreen.Main.route)
-    object Project : Screen(ProjectScreen.Main.route)
-    object Navigation : Screen(NavigationScreen.Main.route)
-    object Account : Screen(AccountScreen.Main.route)
+    data object Home : Screen(HomeScreen.Main.route)
+    data object Project : Screen(ProjectScreen.Main.route)
+    data object Navigation : Screen(NavigationScreen.Main.route)
+    data object Account : Screen(AccountScreen.Main.route)
 }
 
 sealed class HomeScreen(val route: String) {
-    object Main : HomeScreen("首页")
-    object Home : HomeScreen("热门")
-    object Qa : HomeScreen("问答")
-    object Square : HomeScreen("广场")
-    object Search : HomeScreen("搜索")
+    data object Main : HomeScreen("首页")
+    data object Home : HomeScreen("热门")
+    data object Qa : HomeScreen("问答")
+    data object Square : HomeScreen("广场")
+    data object Search : HomeScreen("搜索")
 }
 
 sealed class ProjectScreen(val route: String) {
-    object Main : ProjectScreen("项目")
-    object Project : ProjectScreen("项目界面")
+    data object Main : ProjectScreen("项目")
+    data object Project : ProjectScreen("项目界面")
 }
 
 sealed class NavigationScreen(val route: String) {
-    object Main : NavigationScreen("导航")
-    object Tree : NavigationScreen("体系")
+    data object Main : NavigationScreen("导航")
+    data object Tree : NavigationScreen("体系")
 }
 
 sealed class AccountScreen(val route: String) {
-    object Main : AccountScreen("我的")
-    object Login : AccountScreen("登录")
-    object Register : AccountScreen("注册")
-    object Account : AccountScreen("账号")
-    object Collect : AccountScreen("我的收藏")
-    object Message : AccountScreen("我的消息")
-    object Coin : AccountScreen("我的积分")
-    object Rank : AccountScreen("积分排行榜")
-    object About : AccountScreen("关于")
+    data object Main : AccountScreen("我的")
+    data object Login : AccountScreen("登录")
+    data object Register : AccountScreen("注册")
+    data object Account : AccountScreen("账号")
+    data object Collect : AccountScreen("我的收藏")
+    data object Message : AccountScreen("我的消息")
+    data object Coin : AccountScreen("我的积分")
+    data object Rank : AccountScreen("积分排行榜")
+    data object About : AccountScreen("关于")
 }
 
 sealed class OtherScreen(val route: String) {
-    object WebView : OtherScreen("网页")
-    object Start: OtherScreen("启动")
-    object UserArticles: OtherScreen("作者详细")
+    data object WebView : OtherScreen("网页")
+    data object Start: OtherScreen("启动")
+    data object UserArticles: OtherScreen("作者详细")
 }

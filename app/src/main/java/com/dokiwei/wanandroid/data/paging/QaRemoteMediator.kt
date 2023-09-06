@@ -6,6 +6,7 @@ import com.dokiwei.wanandroid.data.local.database.ArticleDatabase
 import com.dokiwei.wanandroid.model.apidata.ArticleData
 import com.dokiwei.wanandroid.model.entity.home.QaEntity
 import com.dokiwei.wanandroid.model.entity.remotekey.QaRemoteKeys
+import com.dokiwei.wanandroid.model.util.converter.ArticleConverter
 import com.dokiwei.wanandroid.network.impl.HomeApiImpl
 import javax.inject.Inject
 
@@ -71,22 +72,6 @@ class QaRemoteMediator @Inject constructor(
         )
     }
 
-    override fun convertToEntity(data: ArticleData): QaEntity {
-        return QaEntity(
-            order = 0,
-            id = data.id,
-            title = data.title,
-            author = data.author,
-            shareUser = data.shareUser,
-            superChapterName = data.superChapterName,
-            chapterName = data.chapterName,
-            niceDate = data.niceDate,
-            niceShareDate = data.niceShareDate,
-            collect = data.collect,
-            link = data.link,
-            fresh = data.fresh,
-            tags = data.tags,
-            userId = data.userId
-        )
-    }
+    override fun convertToEntity(data: ArticleData)= ArticleConverter().convertToEntity<QaEntity>(data)
+
 }

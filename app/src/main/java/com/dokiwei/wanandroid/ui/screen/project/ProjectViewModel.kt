@@ -3,6 +3,7 @@ package com.dokiwei.wanandroid.ui.screen.project
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.ExperimentalPagingApi
+import androidx.paging.cachedIn
 import com.dokiwei.wanandroid.data.local.database.ArticleDatabase
 import com.dokiwei.wanandroid.data.paging.ProjectRemoteMediator
 import com.dokiwei.wanandroid.data.repository.ProjectRepository
@@ -25,8 +26,8 @@ class ProjectViewModel @Inject constructor(
     @OptIn(ExperimentalPagingApi::class)
     private val _state = MutableStateFlow(
         ProjectState(
-            title = projectRepository.getAllTitle(),
-            data = projectRepository.getAllProject(remoteMediator)
+            title = projectRepository.getAllTitle().cachedIn(viewModelScope),
+            data = projectRepository.getAllProject(remoteMediator).cachedIn(viewModelScope)
         )
     )
     val state = _state

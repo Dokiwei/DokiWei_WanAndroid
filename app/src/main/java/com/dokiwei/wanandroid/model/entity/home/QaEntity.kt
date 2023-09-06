@@ -5,13 +5,13 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.dokiwei.wanandroid.model.apidata.TagData
 import com.dokiwei.wanandroid.model.util.Constants
-import com.dokiwei.wanandroid.model.util.converter.TagConverter
+import com.dokiwei.wanandroid.model.util.converter.TagSerializableConverter
 
 /**
  * @author DokiWei
  * @date 2023/8/9 23:20
  */
-@TypeConverters(TagConverter::class)
+@TypeConverters(TagSerializableConverter::class)
 @Entity(tableName = Constants.QA_ARTICLE_TABLE)
 data class QaEntity(
     @PrimaryKey(autoGenerate = true)

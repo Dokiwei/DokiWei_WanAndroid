@@ -56,7 +56,7 @@ class PublicViewModel(application: Application) : AndroidViewModel(application =
         }
         result.exceptionOrNull()?.let {
             ToastAndLogcatUtil.log(
-                tag = "publicViewModel获取未读消息数量", msg = "获取异常:$it", level = 0
+                tag = "publicViewModel获取未读消息数量", msg = "获取异常:$it"
             )
         }
     }

@@ -62,6 +62,7 @@ interface HomeApi {
     @FormUrlEncoded
     suspend fun search(
         @Path("page") page: Int,
-        @Field("k") key: String
+        @Field("k") key: String,
+        @Query("page_size") pageSize: Int= Constants.API_PAGE_SIZE
     ): ResponseBody
 }

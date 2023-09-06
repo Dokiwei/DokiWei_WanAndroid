@@ -37,7 +37,7 @@ class PersonViewModel : ViewModel() {
 
     private fun handleAction(action: PersonAction) {
         when (action) {
-            is PersonAction.OutputLogcat -> ToastAndLogcatUtil.log("PersonAction", action.msg, 0)
+            is PersonAction.OutputLogcat -> ToastAndLogcatUtil.log("PersonAction", action.msg)
             is PersonAction.SetUserInfo -> _userInfoList.value = action.data
             else -> {}
         }

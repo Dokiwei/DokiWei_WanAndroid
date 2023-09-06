@@ -5,13 +5,13 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.dokiwei.wanandroid.model.apidata.TagData
 import com.dokiwei.wanandroid.model.util.Constants.HOME_ARTICLE_TABLE
-import com.dokiwei.wanandroid.model.util.converter.TagConverter
+import com.dokiwei.wanandroid.model.util.converter.TagSerializableConverter
 
 /**
  * @author DokiWei
  * @date 2023/8/9 18:11
  */
-@TypeConverters(TagConverter::class)
+@TypeConverters(TagSerializableConverter::class)
 @Entity(tableName = HOME_ARTICLE_TABLE)
 data class HomeEntity(
     @PrimaryKey(autoGenerate = true)

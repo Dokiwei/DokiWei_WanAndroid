@@ -48,7 +48,7 @@ sealed class TreeIntent {
 
 sealed class TreeAction {
     data class ShowToast(val msg: String) : TreeAction()
-    data class OutputLogcat(val tag: String = "TreeAction", val msg: String, val level: Int = 0) :
+    data class OutputLogcat(val tag: String = "TreeAction", val msg: String) :
         TreeAction()
 
     data class LoadMoreSearchResult(val author: String) : TreeAction()
@@ -173,7 +173,7 @@ class TreeViewModel : ViewModel() {
             }
 
             is TreeAction.OutputLogcat -> ToastAndLogcatUtil.log(
-                action.tag, action.msg, action.level
+                action.tag, action.msg
             )
 
             is TreeAction.ShowToast -> _state.value = _state.value.copy(msg = action.msg)

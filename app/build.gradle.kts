@@ -44,7 +44,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
     packaging {
         resources {
@@ -92,9 +92,8 @@ dependencies {
     implementation(libs.activity.compose)
     implementation(platform(libs.compose.bom))
     androidTestImplementation(platform(libs.compose.bom))
-    //androidx.compose
-    implementation(libs.material)
     implementation(libs.material3)
+    implementation(libs.material.icons.extended)
     implementation(libs.ui)
     debugImplementation(libs.ui.tooling)
     implementation(libs.ui.graphics)

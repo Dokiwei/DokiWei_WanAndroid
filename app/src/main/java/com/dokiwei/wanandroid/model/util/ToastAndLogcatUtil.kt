@@ -9,27 +9,19 @@ import com.dokiwei.wanandroid.ui.main.MyApplication
  * @date 2023/7/11 18:48
  */
 object ToastAndLogcatUtil {
+
     fun showMsg(msg: String) {
         Toast.makeText(MyApplication.context, msg, Toast.LENGTH_SHORT).show()
     }
 
-    fun log(tag: String = "默认", msg: String, level: Int=0) {
+    fun log(tag: String = "默认", msg: String, level: LogLevel = LogLevel.ERROR) {
         when (level) {
-            0 -> logE(tag, msg)
-            1 -> logD(tag, msg)
-            else -> logI(tag, msg)
+            LogLevel.VERBOSE -> Log.v(tag, msg)
+            LogLevel.DEBUG -> Log.d(tag, msg)
+            LogLevel.INFO -> Log.i(tag, msg)
+            LogLevel.WARN -> Log.w(tag, msg)
+            LogLevel.ERROR -> Log.e(tag, msg)
         }
     }
 
-    private fun logE(tag: String, msg: String) {
-        Log.e(tag, msg)
-    }
-
-    private fun logD(tag: String, msg: String) {
-        Log.d(tag, msg)
-    }
-
-    private fun logI(tag: String, msg: String) {
-        Log.i(tag, msg)
-    }
 }
