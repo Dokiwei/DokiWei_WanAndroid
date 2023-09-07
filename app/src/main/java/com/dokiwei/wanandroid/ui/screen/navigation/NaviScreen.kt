@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -43,6 +44,7 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -60,20 +62,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.dokiwei.wanandroid.R
+import com.dokiwei.wanandroid.model.util.PagingState
 import com.dokiwei.wanandroid.model.util.myCustomNavigate
 import com.dokiwei.wanandroid.model.util.publicViewModel
-import com.dokiwei.wanandroid.ui.main.PublicIntent
 import com.dokiwei.wanandroid.ui.main.PublicViewModel
+import com.dokiwei.wanandroid.ui.widgets.Items
 import com.dokiwei.wanandroid.ui.widgets.MyScrollableTabRow
-import com.dokiwei.wanandroid.ui.widgets.SwipeHomeItemsLayout
+import com.dokiwei.wanandroid.ui.widgets.SwipeLayout
 import java.net.URLEncoder
 
 /**
  * @author DokiWei
  * @date 2023/7/31 18:34
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TreeScreen(navController: NavController) {
     val vm: TreeViewModel = viewModel()
@@ -85,6 +89,7 @@ fun TreeScreen(navController: NavController) {
     var showSearchBar by remember { mutableStateOf(false) }
     var showSearchResult by remember { mutableStateOf(false) }
     var showChildren by remember { mutableStateOf(false) }
+    var scrollToTop by remember { mutableStateOf(false) }
     //返回监听
     BackHandler {
         if (showChildren || showSearchResult) {
@@ -148,7 +153,6 @@ fun TreeScreen(navController: NavController) {
                     showSearchBar = true
                 } else {
                     vm.dispatch(TreeIntent.UpdateAuthor(searchKey.trim()))
-                    vm.dispatch(TreeIntent.GetSearchResult)
                     showSearchResult = true
                 }
             }) {
@@ -158,9 +162,10 @@ fun TreeScreen(navController: NavController) {
             }
         })
     }, floatingActionButton = {
-        if (showChildren || showSearchResult) SmallFloatingActionButton(shape = FloatingActionButtonDefaults.largeShape,
+        if (showChildren || showSearchResult) SmallFloatingActionButton(
+            shape = FloatingActionButtonDefaults.largeShape,
             onClick = {
-                vm.dispatch(TreeIntent.ChangeScrollToTop)
+                scrollToTop = true
             }) {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowUp, contentDescription = null
@@ -182,6 +187,7 @@ fun TreeScreen(navController: NavController) {
                     navController,
                     vmP,
                     showSearchResult,
+                    scrollToTop,
                     { title = it },
                     { showChildren = it })
 
@@ -242,11 +248,12 @@ private fun Tree(
     navController: NavController,
     vmP: PublicViewModel,
     showSearchResult: Boolean,
+    scrollToTop: Boolean,
     changeTitle: (String) -> Unit,
     changeShowChildren: (Boolean) -> Unit
 ) {
     AnimatedVisibility(
-        state.data.isNotEmpty(), enter = fadeIn(), exit = fadeOut()
+        state.tree.isNotEmpty(), enter = fadeIn(), exit = fadeOut()
     ) {
         PermanentNavigationDrawer(drawerContent = {
             PermanentDrawerSheet(
@@ -255,8 +262,8 @@ private fun Tree(
                 drawerContainerColor = MaterialTheme.colorScheme.surface
             ) {
                 LazyColumn {
-                    items(state.data.size) {
-                        val data = state.data[it]
+                    items(state.tree.size) {
+                        val data = state.tree[it]
                         Row(
                             Modifier.fillMaxWidth()
                         ) {
@@ -304,8 +311,7 @@ private fun Tree(
                         .padding(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val childrenDataList = state.data[state.nowTreeIndex].children
-
+                    val childrenDataList = state.tree[state.nowTreeIndex].children
                     LazyColumn {
                         item {
                             FlowRow {
@@ -314,7 +320,6 @@ private fun Tree(
                                         modifier = Modifier.padding(horizontal = 5.dp), onClick = {
                                             changeTitle(it.name)
                                             vm.dispatch(TreeIntent.UpdateCid(it.id))
-                                            vm.dispatch(TreeIntent.GetTreeChildren)
                                             changeShowChildren(true)
                                         }, colors = ButtonDefaults.textButtonColors(
                                             containerColor = colorResource(id = R.color.button),
@@ -337,60 +342,46 @@ private fun Tree(
     AnimatedVisibility(
         visible = showChildren, enter = slideInVertically() + fadeIn(), exit = fadeOut()
     ) {
-        SwipeHomeItemsLayout(modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-            isToTop = state.scrollToTop,
-            navController = navController,
-            isRefreshing = state.isRefreshing,
-            isLoadingMore = state.isLoadingMore,
-            items = state.children,
-            onRefresh = {
-                vm.dispatch(TreeIntent.RefreshTreeChildren)
-            },
-            onLoadMore = {
-                vm.dispatch(TreeIntent.LoadMoreTreeChildren)
-            },
-            onCollectClick = { item, like ->
-                if (like) vmP.dispatch(PublicIntent.UnCollect(item.id))
-                else vmP.dispatch(PublicIntent.Collect(item.id))
-            })
+        val flow = remember {
+            vm.treeChildren(state.cid)
+        }
+        val data = flow.collectAsLazyPagingItems()
+        data.PagingState(tag = "Navi-Children-Paging 加载状态:")
+        val lazyListState = rememberLazyListState()
+        LaunchedEffect(scrollToTop){
+            lazyListState.animateScrollToItem(0)
+        }
+        SwipeLayout(modifier = Modifier.background(MaterialTheme.colorScheme.background),
+            onRefresh = { data.refresh() }) {
+            Items(
+                lazyListState = lazyListState,
+                navController = navController,
+                articleData = data,
+                vmP = vmP
+            )
+        }
     }
     //搜索结果
     AnimatedVisibility(
         visible = showSearchResult, enter = slideInVertically() + fadeIn(), exit = fadeOut()
     ) {
-        if (state.searchResult.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
-            ) {
-                Text(
-                    text = "搜索结果为空",
-                    fontSize = 16.sp,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-        } else {
-            SwipeHomeItemsLayout(modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-                isToTop = state.scrollToTop,
+        val flow = remember {
+            vm.searchResult(state.author)
+        }
+        val data = flow.collectAsLazyPagingItems()
+        data.PagingState(tag = "Navi-SearchResult-Paging 加载状态:")
+        val lazyListState = rememberLazyListState()
+        LaunchedEffect(scrollToTop){
+            lazyListState.animateScrollToItem(0)
+        }
+        SwipeLayout(modifier = Modifier.background(MaterialTheme.colorScheme.background),
+            onRefresh = { data.refresh() }) {
+            Items(
+                lazyListState = lazyListState,
                 navController = navController,
-                isRefreshing = state.isRefreshing,
-                isLoadingMore = state.isLoadingMore,
-                items = state.searchResult,
-                onRefresh = {
-                    vm.dispatch(TreeIntent.RefreshSearchResult)
-                },
-                onLoadMore = {
-                    vm.dispatch(TreeIntent.LoadMoreSearchResult)
-                },
-                onCollectClick = { item, like ->
-                    if (like) vmP.dispatch(PublicIntent.UnCollect(item.id))
-                    else vmP.dispatch(PublicIntent.Collect(item.id))
-                })
+                articleData = data,
+                vmP = vmP
+            )
         }
 
     }

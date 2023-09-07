@@ -22,14 +22,3 @@ data class ArticleData(
     val tags: List<TagData>,
     val userId:Int
 )
-@Serializable
-data class Article(
-    val data:Data,
-    val errorCode:Int,
-    val errorMsg:String
-)
-@Serializable
-data class Data(
-    val curPage:Int,
-    val datas:List<ArticleData>
-    )

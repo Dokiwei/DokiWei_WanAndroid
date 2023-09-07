@@ -55,18 +55,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.dokiwei.wanandroid.R
 import com.dokiwei.wanandroid.model.util.OtherScreen
-import com.dokiwei.wanandroid.model.util.ToastAndLogcatUtil
+import com.dokiwei.wanandroid.model.util.PagingState
 import com.dokiwei.wanandroid.model.util.myCustomNavigate
 import com.dokiwei.wanandroid.model.util.publicViewModel
 import com.dokiwei.wanandroid.ui.main.PublicIntent
 import com.dokiwei.wanandroid.ui.widgets.CardContent
 import com.dokiwei.wanandroid.ui.widgets.LikeIcon
-import com.dokiwei.wanandroid.ui.widgets.Loading
 import com.dokiwei.wanandroid.ui.widgets.MyScrollableTabRow
 import com.dokiwei.wanandroid.ui.widgets.SwipeLayout
 import java.net.URLEncoder
@@ -84,7 +82,7 @@ fun ProjectScreen(navController: NavHostController) {
     val state by vm.state.collectAsState()
     val title = state.title.collectAsLazyPagingItems()
     val data = state.data.collectAsLazyPagingItems()
-
+    data.PagingState(tag = "Project-Paging")
     val lazyListState = rememberLazyListState()
 
     BackHandler(onBack = {
@@ -97,21 +95,6 @@ fun ProjectScreen(navController: NavHostController) {
 
     LaunchedEffect(state.scrollToTop) {
         lazyListState.animateScrollToItem(0)
-    }
-
-    when (data.loadState.refresh) {
-        is LoadState.Loading -> Loading {
-            data.retry()
-        }
-
-        is LoadState.Error -> (data.loadState.refresh as LoadState.Error).error.message?.let {
-            ToastAndLogcatUtil.log(
-                "ProjectPaging",
-                msg = it
-            )
-        }
-
-        is LoadState.NotLoading -> {}
     }
 
     Scaffold(

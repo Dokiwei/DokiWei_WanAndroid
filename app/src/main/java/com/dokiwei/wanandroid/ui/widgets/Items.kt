@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -107,13 +108,17 @@ inline fun <reified T : Any> Items(
                 }
 
                 else -> ItemContent(
-                    item as ArticleData,
-                    navController,
-                    painterID,
-                    vmP,
-                    searchKey,
-                    searchKeyList
+                    item as ArticleData, navController, painterID, vmP, searchKey, searchKeyList
                 )
+            }
+        }
+        articleData.itemCount.takeIf { it == 0 }.let {
+            item {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "文章为空"
+                    )
+                }
             }
         }
     }
@@ -159,7 +164,7 @@ fun ItemContent(
         }, headlineContent = {
             searchKey?.takeIf { it.isNotEmpty() }?.let {
                 searchKeyList?.let {
-                    val text = Html.fromHtml(data.title).toString()
+                    val text = Html.fromHtml(data.title, Html.FROM_HTML_MODE_LEGACY).toString()
                     val annotatedText = buildAnnotatedString {
                         var index1 = 0
                         it.forEach { heightLight ->

@@ -1,5 +1,6 @@
 package com.dokiwei.wanandroid.network.api
 
+import com.dokiwei.wanandroid.model.util.Constants
 import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -25,7 +26,8 @@ interface NavigationApi {
     @GET("article/list/{page}/json")
     suspend fun treeChildren(
         @Path("page") page: Int,
-        @Query("cid") id: Int
+        @Query("cid") id: Int,
+        @Query("page_size") pageSize: Int= Constants.API_PAGE_SIZE
     ):ResponseBody
 
 
@@ -37,7 +39,8 @@ interface NavigationApi {
     @GET("article/list/{page}/json")
     suspend fun searchAuthor(
         @Path("page") page: Int,
-        @Query("author") author: String
+        @Query("author") author: String,
+        @Query("page_size") pageSize: Int= Constants.API_PAGE_SIZE
     ):ResponseBody
 
     /**

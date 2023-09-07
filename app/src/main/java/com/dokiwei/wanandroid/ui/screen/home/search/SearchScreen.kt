@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -62,20 +63,15 @@ import kotlinx.coroutines.delay
 fun SearchScreen(navController: NavController) {
     val vm: SearchViewModel = viewModel()
     val vmP = publicViewModel()
-
     val state by vm.state.collectAsState()
-    val data = state.data.collectAsLazyPagingItems()
 
-    data.PagingState(tag = "Search-Paging 加载状态:")
     val lazyListState = rememberLazyListState()
-
-    var searchKey by remember {
-        mutableStateOf("")
-    }
+    var searchKey by remember { mutableStateOf("") }
     var scrollToTop by remember { mutableStateOf(false) }
     //返回监听
     BackHandler(onBack = {
         if (state.isShowResult) {
+            searchKey = ""
             vm.dispatch(SearchIntent.ChangeShowResult(false))
         } else {
             navController.navigateUp()
@@ -94,6 +90,7 @@ fun SearchScreen(navController: NavController) {
             CenterAlignedTopAppBar(navigationIcon = {
                 IconButton(onClick = {
                     if (state.isShowResult) {
+                        searchKey = ""
                         vm.dispatch(SearchIntent.ChangeShowResult(false))
                     } else {
                         navController.navigateUp()
@@ -107,7 +104,7 @@ fun SearchScreen(navController: NavController) {
                     shape = RoundedCornerShape(24.dp),
                     maxLines = 1,
                     placeholder = {
-                        Text(text = "请输入关键词", maxLines = 1)
+                        Text(text = "请输入关键词", maxLines = 1, color = DividerDefaults.color)
                     },
                     value = searchKey,
                     textStyle = TextStyle.Default,
@@ -194,6 +191,8 @@ fun SearchScreen(navController: NavController) {
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
+                val data = state.data.collectAsLazyPagingItems()
+                data.PagingState(tag = "Search-Paging 加载状态:")
                 SwipeLayout(onRefresh = { data.refresh() }) {
                     Items(
                         searchKey = searchKey,

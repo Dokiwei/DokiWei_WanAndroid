@@ -47,8 +47,6 @@ class ProjectViewModel @Inject constructor(
 
             is ProjectIntent.UpdateScrollToTop -> _state.value =
                 _state.value.copy(scrollToTop = intent.boolean)
-
-            else -> {}
         }
     }
 

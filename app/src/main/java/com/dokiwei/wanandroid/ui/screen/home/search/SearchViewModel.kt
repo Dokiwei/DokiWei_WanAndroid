@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.dokiwei.wanandroid.data.base.BasePagingSource
 import com.dokiwei.wanandroid.model.util.ToastAndLogcatUtil
 import com.dokiwei.wanandroid.network.impl.HomeApiImpl
@@ -27,7 +28,7 @@ class SearchViewModel : ViewModel() {
         pageSize = 20, initialLoadSize = 40
     ), pagingSourceFactory = {
         BasePagingSource { HomeApiImpl().search(it, k) }
-    }).flow
+    }).flow.cachedIn(viewModelScope)
 
     init {
         viewModelScope.launch(Dispatchers.IO) { getHotKey() }
