@@ -3,6 +3,7 @@
 <div align="center">
 
 [![Github][Dokiwei]][Dokiwei-Url]
+[![DokiWei][DokiWei-WanAndroid]][DokiWei-WanAndroid-Url]
 
 </div>
 
@@ -227,6 +228,8 @@ abstract class BaseRemoteMediator<T : Any, R : Any, E : Any>(
 鸿洋大佬的[WanAndroid](https://www.wanandroid.com/)提供的开放Api
 
 <!-- MARKDOWN LINKS & IMAGES -->
+[Dokiwei-WanAndroid]:https://img.shields.io/badge/Dokiwei-Dokiwei_WanAndroid-red.svg?style=flat&logo=github&logoColor=#181717
+[Dokiwei-WanAndroid-Url]:https://github.com/Dokiwei/DokiWei_WanAndroid
 [Dokiwei]:https://img.shields.io/badge/Github-DokiWei-blue.svg?style=flat&logo=github&logoColor=#181717
 [Dokiwei-Url]:https://github.com/Dokiwei
 [Jetpack-Compose]: https://img.shields.io/badge/jetpack_compose-1.5.0_beta03-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=#4285F4
